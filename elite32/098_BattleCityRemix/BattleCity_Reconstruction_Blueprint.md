@@ -14,7 +14,7 @@
 > 2. **玻璃擬態 HUD (Glassmorphism Header)**：頂部設計一條橫向 glass-header，使用 `backdrop-filter: blur(10px)` 與 `box-shadow: 0 4px 15px rgba(0,0,0,0.3)`。內含三個區塊：左側遊戲標題「🚜 鋼鐵雄心 IRON HEART REMIX」、中間三欄即時數據 (生命/敵方剩餘/分數)、右側兩顆迷你按鈕 (🤖 自動導航 ON/OFF + 🔄 重開局)。
 > 3. **戰場區域**：中央放置 600×600 的 Canvas，外層包覆 `overflow: hidden` 與 `border: 2px solid #333` 的容器。
 > 4. **覆蓋層系統**：設計「開始遊戲」與「任務失敗」兩種全螢幕覆蓋層，使用 `rgba(0,0,0,0.85)` 搭配 `backdrop-filter: blur(8px)`，內含橙色邊框的圓角卡片與 50px 圓角啟動按鈕。
-> 5. **底部footer**：銘刻「FLAGSHIP REMASTERED | UTT-v2.0 INDUSTRIAL GRADE | COMMANDER PATRICIA HSU」。
+> 5. **底部footer**：銘刻「FLAGSHIP REMASTERED | UTT-v2.0 INDUSTRIAL GRADE | COMMANDER PATRICIA HSUE」。
 > 請提供完整的 HTML 架構與高品質的 CSS 樣式代碼。"
 
 ---

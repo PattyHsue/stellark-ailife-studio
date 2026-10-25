@@ -1,5 +1,5 @@
 # 🎓 UTT 遊戲學院 — Bootstrap Context (AI 請立刻閱讀)
-> Commander: Patricia Hsu | 2026-04-11 | Workspace: Game32Video_26M4
+> Commander: Patricia Hsue | 2026-04-11 | Workspace: Game32Video_26M4
 
 ## ⚡ 給 AI 代理的任務簡報
 您正在「UTT 遊戲學院」工作區。使命：以 Elite 32 遊戲為教材，逐一製作大師級教學課程 + NotebookLM 影片。

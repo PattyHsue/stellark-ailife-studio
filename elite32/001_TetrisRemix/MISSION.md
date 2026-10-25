@@ -54,4 +54,4 @@
 
 ---
 *設計者：UTT-v2.0 全體架構師*
-*指導：Commander Patricia Hsu*
+*指導：Commander Patricia Hsue*

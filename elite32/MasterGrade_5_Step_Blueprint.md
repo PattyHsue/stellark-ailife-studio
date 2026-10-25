@@ -1,6 +1,6 @@
 # 🏛️ The Master-Grade 5-Step Blueprint
 > **UTT-v2.0 旗艦級遊戲重製標準作業程序 (SOP)**
-> *Architected by The Universal Tutor Team (Xavier & Isabelle) for Commander Patricia Hsu*
+> *Architected by The Universal Tutor Team (Xavier & Isabelle) for Commander Patricia Hsue*
 
 為了確保 The Elite 32 (甚至是未來的 GameVault 100) 每一款專案皆能達到 **Master-Grade (大師級)** 工業水準，我們深度剖析了過往的開發對話史，從介面、物理、聽視覺、AI 演算法到全域整合，將原本 8 大系統工程收斂、昇華為系統化的 **「5 步複刻法 (5-Step Reconstruction Blueprint)」**。
 

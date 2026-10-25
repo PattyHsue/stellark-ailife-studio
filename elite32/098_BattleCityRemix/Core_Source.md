@@ -87,7 +87,7 @@ HTML 採用 UTT-v2.0 Glassmorphism HUD 標準，使用 `backdrop-filter: blur()`
         </main>
 
         <footer class="glass-footer">
-            <p>FLAGSHIP REMASTERED | UTT-v2.0 INDUSTRIAL GRADE | COMMANDER PATRICIA HSU</p>
+            <p>FLAGSHIP REMASTERED | UTT-v2.0 INDUSTRIAL GRADE | COMMANDER PATRICIA HSUE</p>
         </footer>
     </div>
 

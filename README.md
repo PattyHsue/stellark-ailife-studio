@@ -28,6 +28,7 @@ Stellark Studio 致力於將複雜的 AI 概念與數位工程，轉化為沉浸
 
 - **八角旋律 (Octagonal Melody)**：互動式視覺合成器，結合網頁音效與動畫。
 - **機械時光 (Mechanical Watch)**：極致精密的 CSS/JS 互動工程模擬。
+- **18 週 Python 雙語互動學院 (Stellark Python Academy)**：內建中英雙語切換、360 題實戰任務、180 題隨堂測驗與瀏覽器即時 Python 執行引擎。
 - *更多詳細專案請直接前往我們的官方網站探索。*
 
 ### 🛠️ 技術堆疊
@@ -41,7 +42,7 @@ Stellark Studio 致力於將複雜的 AI 概念與數位工程，轉化為沉浸
 ### 📬 聯絡與合作
 
 對數位專案合作有興趣，或是想探索 AI 教育解決方案嗎？
-- **負責人**: Patty Hsu
+- **負責人**: 徐桂梅 Patricia Hsue
 - **官方網站**: [Stellark Studio](https://stellark-ailife-studio.netlify.app/)
 
 <br>
@@ -66,6 +67,7 @@ Stellark Studio is dedicated to transforming complex AI concepts and digital eng
 
 - **Octagonal Melody (八角旋律)**: An interactive visual synthesizer.
 - **Mechanical Watch (機械時光)**: Precision CSS/JS engineering simulation.
+- **18-Week Python Bilingual Interactive Academy**: In-browser Python execution lab with 360 hands-on tasks & 180 bilingual quizzes.
 - *Explore more detailed projects directly on our live website.*
 
 ### 🛠️ Technology Stack
@@ -79,7 +81,7 @@ This portfolio is built with a focus on high performance and zero-dependency nat
 ### 📬 Contact & Collaboration
 
 Interested in collaborating on a digital project or exploring AI educational solutions?
-- **Author**: Patty Hsu
+- **Commander & Founder**: Patricia Hsue (徐桂梅)
 - **Website**: [Stellark Studio](https://stellark-ailife-studio.netlify.app/)
 
 ---
