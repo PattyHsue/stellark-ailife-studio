@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 12: 🧬 Inheritance, Polymorphism &amp; Design Patterns | Stellark Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../src/styles/tokens.css">
+    <link rel="stylesheet" href="../src/styles/reset.css">
+    <link rel="stylesheet" href="../src/styles/global.css">
+    <link rel="stylesheet" href="../src/styles/components.css">
+    <style>
+        :root { --sidebar-width: 280px; }
+        body { background: var(--color-bg-primary); color: var(--color-text-primary); }
+        h1, h2, h3, h4 { color: #ffffff; }
+        p, li, div { color: var(--color-text-primary); }
+        .lesson-layout { display: flex; min-height: 100vh; padding-top: 72px; }
+        .lesson-sidebar { width: var(--sidebar-width); height: calc(100vh - 72px); position: fixed; left: 0; top: 72px; background: var(--color-bg-secondary); border-right: 1px solid var(--color-border); padding: var(--space-lg); overflow-y: auto; }
+        .lesson-content { flex: 1; margin-left: var(--sidebar-width); padding: var(--space-2xl); max-width: 940px; }
+        .lesson-nav-list { list-style: none; }
+        .lesson-nav-item { margin-bottom: var(--space-sm); }
+        .lesson-nav-link { color: #ffffff; font-size: 0.95rem; font-weight: 500; text-decoration: none; display: block; padding: 10px 14px; border-radius: 8px; transition: all 0.2s; }
+        .lesson-nav-link:hover, .lesson-nav-link.active { color: var(--color-accent-purple); background: rgba(167,139,250,0.12); }
+        .week-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 12px; }
+        .week-pill { text-align: center; padding: 6px 4px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; color: var(--color-text-secondary); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); text-decoration: none; transition: all 0.2s; }
+        .week-pill:hover { color: #fff; border-color: var(--color-accent-cyan); background: rgba(0,212,255,0.1); }
+        .week-pill--active { color: #0f0f1a; background: var(--color-accent-cyan); border-color: var(--color-accent-cyan); font-weight: 800; }
+        .step-card { background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--border-radius-lg); padding: var(--space-xl); margin-bottom: var(--space-xl); }
+        .step-number { display: inline-block; width: 32px; height: 32px; background: var(--color-accent-purple); color: white; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 800; margin-bottom: var(--space-md); }
+        .lab-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: var(--space-md); }
+        .lab-item { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; color: #ffffff; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.2s, background 0.2s, border-color 0.2s; position: relative; overflow: hidden; }
+        .lab-item input { accent-color: var(--color-accent-purple); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+        .lab-item:hover { transform: translateY(-2px); background: rgba(167,139,250,0.16); border-color: rgba(0,212,255,0.55); }
+        .lab-item::after { content: '💻 Run Online | 點擊線上寫程式'; position: absolute; right: 10px; font-size: 0.72rem; color: #00d4ff; opacity: 0; transition: opacity 0.2s; font-weight: 700; background: rgba(15,15,26,0.92); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(0,212,255,0.35); pointer-events: none; }
+        .lab-item:hover::after { opacity: 1; }
+        .quiz-section { background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), rgba(167, 139, 250, 0.04)); border: 1px solid rgba(0, 212, 255, 0.22); padding: var(--space-xl); border-radius: var(--border-radius-lg); }
+        .prompt-box { background: #0d0d18; border: 1px dashed var(--color-accent-purple); padding: var(--space-md); border-radius: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.88rem; color: #c4b5fd; white-space: pre-wrap; position: relative; line-height: 1.6; }
+        .copy-btn { position: absolute; top: 10px; right: 10px; background: var(--color-accent-purple); color: #0f0f1a; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 700; }
+        .copy-btn:hover { filter: brightness(1.1); }
+
+        /* Interactive #colab-modal Simulator & Live Python Runner */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 20, 0.88); backdrop-filter: blur(10px); z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s ease; padding: 16px; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .colab-window { width: 100%; max-width: 780px; max-height: 92vh; display: flex; flex-direction: column; background: #1e1e24; border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 14px; box-shadow: 0 25px 60px rgba(0,0,0,0.65); overflow: hidden; transform: translateY(16px); transition: transform 0.25s ease; }
+        .modal-overlay.active .colab-window { transform: translateY(0); }
+        .colab-header { background: #282833; padding: 12px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #111; flex-shrink: 0; }
+        .colab-dots { display: flex; gap: 6px; }
+        .colab-dots i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+        .colab-dots i:nth-child(1) { background: #ff5f57; }
+        .colab-dots i:nth-child(2) { background: #febc2e; }
+        .colab-dots i:nth-child(3) { background: #28c840; }
+        .colab-title { color: #e2e8f0; font-size: 0.88rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; flex-grow: 1; display: flex; align-items: center; gap: 8px; }
+        .colab-title::before { content: '🐍'; }
+        .colab-nav-group { display: flex; align-items: center; gap: 6px; }
+        .colab-nav-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .colab-nav-btn:hover { background: rgba(0, 212, 255, 0.2); border-color: #00d4ff; color: #fff; }
+        .colab-close { background: none; border: none; color: #94a3b8; font-size: 1.6rem; cursor: pointer; line-height: 1; padding: 0 4px; transition: color 0.2s; }
+        .colab-close:hover { color: #fff; }
+        .colab-body { padding: 20px 24px; background: #181820; overflow-y: auto; flex: 1; }
+        .colab-top-bar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+        #colab-task-title { color: #f8fafc; font-size: 1.08rem; margin: 0; font-weight: 700; line-height: 1.4; }
+        .colab-mini-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); color: #cbd5e1; border-radius: 6px; padding: 4px 10px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; }
+        .colab-mini-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .colab-cell { display: flex; background: #0b0b12; border: 1px solid #334155; border-radius: 10px; position: relative; padding: 12px; transition: border-color 0.2s; }
+        .colab-cell:focus-within { border-color: #00d4ff; box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.15); }
+        .colab-run-btn { width: 36px; height: 36px; background: linear-gradient(135deg, #00d4ff, #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.9rem; cursor: pointer; margin-right: 12px; flex-shrink: 0; transition: transform 0.15s, filter 0.15s; border: none; font-weight: bold; box-shadow: 0 4px 12px rgba(0,212,255,0.3); }
+        .colab-run-btn:hover { transform: scale(1.08); filter: brightness(1.15); }
+        #colab-code { width: 100%; min-height: 150px; background: transparent; border: none; outline: none; color: #9cdcfe; font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 0.94rem; line-height: 1.55; resize: vertical; }
+        .colab-output-panel { margin-top: 14px; background: #0f172a; border: 1px solid #1e293b; border-left: 3px solid #28c840; border-radius: 8px; padding: 12px 16px; display: none; }
+        .colab-output-panel.active { display: block; }
+        .colab-output-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+        #colab-output-text { margin: 0; font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 0.9rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.5; }
+        #colab-canvas { display: none; margin-top: 10px; background: #090d16; border: 1px solid #334155; border-radius: 8px; max-width: 100%; }
+        .colab-footer { padding: 14px 24px; background: #22222c; border-top: 1px solid #333; display: flex; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
+        .colab-footer .btn { flex: 1; min-width: 200px; text-align: center; justify-content: center; border: none; font-size: 0.95rem; cursor: pointer; font-weight: 700; padding: 12px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-run-browser { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        .btn-run-browser:hover { filter: brightness(1.1); }
+
+        /* Quiz Answer Toggle */
+        .quiz-answer { display: none; margin-top: 8px; margin-bottom: 12px; padding: 12px 16px; background: rgba(0, 212, 255, 0.1); border-left: 3px solid var(--color-accent-cyan); color: #f1f5f9; border-radius: 4px; font-size: 0.95rem; line-height: 1.6; }
+        .quiz-answer.show { display: block; animation: fadeInQuiz 0.3s ease; }
+        @keyframes fadeInQuiz { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 900px) {
+            .lesson-sidebar { display: none; }
+            .lesson-content { margin-left: 0; padding: var(--space-lg); }
+            .lab-list { grid-template-columns: 1fr; }
+        }
+
+        :root[lang="en"] .lang-zh { display: none !important; }
+        :root[lang="zh"] .lang-en { display: none !important; }
+    </style>
+    <script>
+        document.documentElement.lang = localStorage.getItem('lang') || 'zh';
+        function toggleLang() {
+            let cur = document.documentElement.lang === 'en' ? 'zh' : 'en';
+            document.documentElement.lang = cur;
+            localStorage.setItem('lang', cur);
+            let btn = document.getElementById('nav-toggle-btn');
+            if (btn) btn.innerText = cur === 'en' ? '中文' : 'EN';
+        }
+    </script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav__container">
+            <a href="../index.html" class="nav__brand"><img src="./assets/stellark-logo.png" alt="Stellark Academy" class="nav__logo"> Stellark Academy</a>
+            <div class="nav__links" style="display:flex; align-items:center; gap:12px;">
+                <a href="../../index.html" class="nav__link" style="color:var(--color-accent-cyan); font-weight:600;"><span class="lang-en">🏠 Stellark Studio</span><span class="lang-zh">🏠 返回星月主站</span></a>
+                <a href="../index.html#labs" class="nav__link"><span class="lang-en">← Back to Labs</span><span class="lang-zh">← 返回實驗室總覽</span></a>
+                <button class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem;" onclick="openColabModal(0)"><span class="lang-en">💻 Online Python IDE</span><span class="lang-zh">💻 開啟線上寫程式</span></button>
+                <button id="nav-toggle-btn" class="btn btn-outline" style="padding: 6px 12px; font-weight: bold;" onclick="toggleLang()">EN</button>
+            </div>
+        </div>
+    </nav>
+    <div class="lesson-layout">
+        <aside class="lesson-sidebar">
+            <h4 style="margin-bottom: 14px; font-size: 1rem;"><span class="lang-en">Week 12 Menu</span><span class="lang-zh">Week 12 章節目錄</span></h4>
+            <ul class="lesson-nav-list">
+                <li class="lesson-nav-item"><a href="#intro" class="lesson-nav-link active"><span class="lang-en">1. Course Intro</span><span class="lang-zh">1. 本週主題</span></a></li>
+                <li class="lesson-nav-item"><a href="#concepts" class="lesson-nav-link"><span class="lang-en">2. Core Concepts</span><span class="lang-zh">2. 核心觀念</span></a></li>
+                <li class="lesson-nav-item"><a href="#prompt" class="lesson-nav-link"><span class="lang-en">3. Summon Tessa</span><span class="lang-zh">3. 召喚助教</span></a></li>
+                <li class="lesson-nav-item"><a href="#practice" class="lesson-nav-link"><span class="lang-en">4. 20 Hands-On Labs</span><span class="lang-zh">4. 20 題實作練習</span></a></li>
+                <li class="lesson-nav-item"><a href="#quiz" class="lesson-nav-link"><span class="lang-en">5. 10 Quizzes</span><span class="lang-zh">5. 10 題隨堂測驗</span></a></li>
+            </ul>
+            <hr style="border:none; border-top:1px solid var(--color-border); margin: 20px 0;">
+            <h4 style="font-size: 0.85rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;"><span class="lang-en">18-Week Quick Jump</span><span class="lang-zh">18 週快速跳轉</span></h4>
+            <div class="week-grid">
+                <a href="week01.html" class="week-pill">W01</a>
+                <a href="week02.html" class="week-pill">W02</a>
+                <a href="week03.html" class="week-pill">W03</a>
+                <a href="week04.html" class="week-pill">W04</a>
+                <a href="week05.html" class="week-pill">W05</a>
+                <a href="week06.html" class="week-pill">W06</a>
+                <a href="week07.html" class="week-pill">W07</a>
+                <a href="week08.html" class="week-pill">W08</a>
+                <a href="week09.html" class="week-pill">W09</a>
+                <a href="week10.html" class="week-pill">W10</a>
+                <a href="week11.html" class="week-pill">W11</a>
+                <a href="week12.html" class="week-pill week-pill--active">W12</a>
+                <a href="week13.html" class="week-pill">W13</a>
+                <a href="week14.html" class="week-pill">W14</a>
+                <a href="week15.html" class="week-pill">W15</a>
+                <a href="week16.html" class="week-pill">W16</a>
+                <a href="week17.html" class="week-pill">W17</a>
+                <a href="week18.html" class="week-pill">W18</a>
+            </div>
+        </aside>
+        <main class="lesson-content">
+            <header id="intro" style="margin-bottom: 40px;">
+                <span class="hero__badge"><span class="lang-en">PHASE 3: Tools &amp; OOP</span><span class="lang-zh">PHASE 3: 工具與物件導向</span></span>
+                <h1 style="font-size: 2.4rem; margin: 12px 0;"><span class="lang-en">🧬 Inheritance, Polymorphism &amp; Design Patterns</span><span class="lang-zh">🧬 繼承、多型與設計模式進階</span></h1>
+                <p style="color: var(--color-text-secondary); font-size: 1.1rem; line-height: 1.7;"><span class="lang-en">This week: class inheritance (`class Child(Parent)`), `super().__init__()`, method overriding, polymorphism, `@property` getters/setters, and building an RPG &amp; Animal Kingdom Hierarchy!</span><span class="lang-zh">本週核心：類別繼承（Inheritance）、`super().__init__()` 呼叫父類建構子、方法覆寫（Overriding）、多型（Polymorphism）與 `@property` 裝飾器！</span></p>
+            </header>
+
+            <section id="concepts" class="step-card">
+                <span class="step-number">01</span>
+                <h3><span class="lang-en">Core Concept: Inheritance, super() &amp; Polymorphism</span><span class="lang-zh">大師觀念：繼承擴展、super() 與多型抽象威力</span></h3>
+                <p style="line-height: 1.75; margin-bottom: 16px;"><span class="lang-en">Inheritance lets child classes reuse and extend parent behavior — and polymorphism lets you call the same method on different objects and get results unique to each. This is the power of abstraction.</span><span class="lang-zh">繼承（Inheritance）讓子類別直接重用並擴展父類別的能力；多型（Polymorphism）則讓你對不同類型的物件呼叫相同名稱的方法，卻能展現各自獨特的行為。這正是抽象化設計的威力！</span></p>
+                <div class="prompt-box"><code>class Hero:
+    def __init__(self, name): self.name = name
+    def attack(self): return f&quot;{self.name} attacks!&quot;
+
+class Mage(Hero):
+    def attack(self): return f&quot;🔥 {self.name} casts Fireball!&quot;
+
+class Archer(Hero):
+    def attack(self): return f&quot;🏹 {self.name} shoots Starlight Arrow!&quot;
+
+for h in [Mage(&quot;Tessa&quot;), Archer(&quot;Orion&quot;)]:
+    print(h.attack())</code></div>
+            </section>
+
+            <section id="prompt" class="step-card" style="border-color: var(--color-accent-purple);">
+                <h3 style="color: var(--color-accent-purple);"><span class="lang-en">🤖 Summon AI Assistant (Tessa)</span><span class="lang-zh">🤖 召喚數位雙生助教 (Tessa)</span></h3>
+                <p style="color: var(--color-text-secondary); font-size: 0.95rem; margin-bottom: 12px;"><span class="lang-en">Stuck on a concept? Copy the System Prompt below and paste it into Gemini, ChatGPT, or Claude to summon your 24/7 Socratic AI tutor:</span><span class="lang-zh">遇到困難了嗎？複製下方的智慧咒語（System Prompt）貼給 Gemini、ChatGPT 或 Claude，啟動專屬你的 24 小時蘇格拉底式 AI 助教：</span></p>
+                <div class="prompt-box" id="tessa-prompt-box"><button class="copy-btn" onclick="copyPrompt()"><span class="lang-en">Copy Spell</span><span class="lang-zh">複製咒語</span></button><span class="lang-en">You are &quot;Tessa&quot;, my Digital Twin AI Teaching Assistant. I am learning Week 12: Python Inheritance, super(), Method Overriding, Polymorphism, and @property. Please guide me with Socratic questions.</span><span class="lang-zh">你是 &quot;Tessa&quot;，我的數位雙生 AI 教學助教。我正在學習第 12 週「繼承、多型與進階物件導向」。當我在 `super().__init__()`、方法覆寫（Overriding）或 `@property` 裝飾器遇到問題時，請用蘇格拉底式提問引導我！</span></div>
+            </section>
+
+            <section id="practice" class="step-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom: 8px;">
+                    <h3 style="margin:0;"><span class="lang-en">🛠️ 20 Hands-On Labs (Click Any Lab to Code Online!)</span><span class="lang-zh">🛠️ 20 題課堂實作練習（點擊任一題目直接線上寫程式執行！）</span></h3>
+                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="openColabModal(0)"><span class="lang-en">▶ Launch Interactive Sandbox</span><span class="lang-zh">▶ 啟動互動寫程式視窗</span></button>
+                </div>
+                <p style="font-size: 0.92rem; color: var(--color-text-secondary); margin-bottom: 20px;"><span class="lang-en">Click any lab item below to open the interactive coding window (#colab-modal) — edit and run Python directly in your browser or launch Google Colab! Check the box when completed:</span><span class="lang-zh">點擊下方任一實作題目即可開啟互動模擬視窗（#colab-modal），支援直接在瀏覽器內編輯並執行 Python 程式碼，或一鍵複製前往 Google Colab！完成後可勾選方框：</span></p>
+                <div class="lab-list">
+                    <div class="lab-item" data-lab-index="0"><input type="checkbox"> <span class="lang-en">1. Create a base class Animal with __init__(self, name, sound)</span><span class="lang-zh">1. 建立基底父類別 Animal 並定義 name 與 sound 屬性</span></div>
+                    <div class="lab-item" data-lab-index="1"><input type="checkbox"> <span class="lang-en">2. Add a speak(self) method to the base Animal class</span><span class="lang-zh">2. 在 Animal 父類別中加入 speak(self) 方法</span></div>
+                    <div class="lab-item" data-lab-index="2"><input type="checkbox"> <span class="lang-en">3. Create a Dog(Animal) subclass that inherits from Animal</span><span class="lang-zh">3. 建立繼承自 Animal 的子類別 class Dog(Animal)</span></div>
+                    <div class="lab-item" data-lab-index="3"><input type="checkbox"> <span class="lang-en">4. Override speak(self) in Dog to customize behavior</span><span class="lang-zh">4. 在 Dog 子類別中覆寫（Override）speak() 方法</span></div>
+                    <div class="lab-item" data-lab-index="4"><input type="checkbox"> <span class="lang-en">5. Use super().__init__() in Dog to extend parent constructor</span><span class="lang-zh">5. 在子類別中使用 super().__init__() 呼叫父類別建構子並擴充屬性</span></div>
+                    <div class="lab-item" data-lab-index="5"><input type="checkbox"> <span class="lang-en">6. Create a Cat(Animal) subclass with its own speak() override</span><span class="lang-zh">6. 建立 Cat(Animal) 子類別並實作專屬的 speak() 行為</span></div>
+                    <div class="lab-item" data-lab-index="6"><input type="checkbox"> <span class="lang-en">7. Create a Bird(Animal) subclass with an extra fly() method</span><span class="lang-zh">7. 建立 Bird(Animal) 子類別並新增專屬的 fly() 飛行方法</span></div>
+                    <div class="lab-item" data-lab-index="7"><input type="checkbox"> <span class="lang-en">8. Demonstrate Polymorphism: iterate over mixed Animal subclasses</span><span class="lang-zh">8. 展現多型（Polymorphism）：在迴圈中對不同動物呼叫相同的 speak()</span></div>
+                    <div class="lab-item" data-lab-index="8"><input type="checkbox"> <span class="lang-en">9. Use isinstance(obj, Class) to verify object type hierarchy</span><span class="lang-zh">9. 使用 isinstance() 檢查物件是否屬於特定類別或其子類別</span></div>
+                    <div class="lab-item" data-lab-index="9"><input type="checkbox"> <span class="lang-en">10. Use issubclass(Child, Parent) to inspect class inheritance</span><span class="lang-zh">10. 使用 issubclass() 檢查兩個類別之間的繼承關係</span></div>
+                    <div class="lab-item" data-lab-index="10"><input type="checkbox"> <span class="lang-en">11. Create a Vehicle base class and ElectricCar / Motorcycle subclasses</span><span class="lang-zh">11. 建立 Vehicle 交通工具父類別與電動車、重機子類別</span></div>
+                    <div class="lab-item" data-lab-index="11"><input type="checkbox"> <span class="lang-en">12. Override __str__ in subclasses for rich printing</span><span class="lang-zh">12. 在各個子類別中覆寫 __str__ 呈現多樣化資訊</span></div>
+                    <div class="lab-item" data-lab-index="12"><input type="checkbox"> <span class="lang-en">13. Create a Shape base class with area() interface</span><span class="lang-zh">13. 建立 Shape 幾何圖形基底類別並定義 area() 面積介面</span></div>
+                    <div class="lab-item" data-lab-index="13"><input type="checkbox"> <span class="lang-en">14. Implement Circle and Rectangle subclasses calculating area()</span><span class="lang-zh">14. 實作 Circle 與 Rectangle 子類別各自計算正確面積</span></div>
+                    <div class="lab-item" data-lab-index="14"><input type="checkbox"> <span class="lang-en">15. Encapsulate private _radius in Circle</span><span class="lang-zh">15. 在 Circle 類別中使用 _radius 封裝半徑屬性</span></div>
+                    <div class="lab-item" data-lab-index="15"><input type="checkbox"> <span class="lang-en">16. Use @property decorator to create a clean radius getter</span><span class="lang-zh">16. 使用 @property 裝飾器將方法轉化為直覺的唯讀屬性</span></div>
+                    <div class="lab-item" data-lab-index="16"><input type="checkbox"> <span class="lang-en">17. Use @radius.setter to validate positive radius on assignment</span><span class="lang-zh">17. 使用 @setter 裝飾器在賦值時自動攔截並驗證負數半徑</span></div>
+                    <div class="lab-item" data-lab-index="17"><input type="checkbox"> <span class="lang-en">18. Demonstrate Composition (&#x27;HAS-A&#x27; relationship: Car has an Engine)</span><span class="lang-zh">18. 實作組合模式（Composition）：Car 類別內部擁有 Engine 物件</span></div>
+                    <div class="lab-item" data-lab-index="18"><input type="checkbox"> <span class="lang-en">19. Implement the Singleton or Factory Design Pattern</span><span class="lang-zh">19. 認識設計模式：實作簡易角色工廠模式 (Factory Pattern)</span></div>
+                    <div class="lab-item" data-lab-index="19"><input type="checkbox"> <span class="lang-en">20. Build the complete &#x27;Stellark RPG Party &amp; Zoo Polymorphism Engine&#x27;</span><span class="lang-zh">20. 綜合實作：完成結合繼承、super() 與多型的「星月 RPG 戰隊系統」</span></div>
+                </div>
+            </section>
+
+            <section id="quiz" class="quiz-section">
+                <h3><span class="lang-en">📝 10 Knowledge Quizzes</span><span class="lang-zh">📝 10 題隨堂知識測驗</span></h3>
+                <div style="margin-top: 20px;">
+                    <ol style="margin-left: 20px; color: var(--color-text-secondary); line-height: 1.8;">
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What is Inheritance in Object-Oriented Programming?</span><span class="lang-zh">在物件導向程式設計中，什麼是「繼承（Inheritance）」？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> A mechanism where a child class (`Subclass`) automatically acquires all attributes and methods of a parent class (`Superclass`).</span><span class="lang-zh">💡 <b>參考解答：</b>子類別（Subclass）自動承接父類別（Superclass）所有屬性與方法的機制，實現程式碼重用與擴充。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What does `super().__init__(...)` do inside a child class?</span><span class="lang-zh">在子類別中呼叫 `super().__init__(...)` 的作用是什麼？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> Invokes the parent class&#x27;s `__init__` constructor so the parent&#x27;s attributes are properly initialized before adding child-specific attributes.</span><span class="lang-zh">💡 <b>參考解答：</b>呼叫父類別的 `__init__` 建構子，確保父類別原有的屬性先完成初始化，再接著擴充子類別特有的屬性。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What is Method Overriding?</span><span class="lang-zh">什麼是「方法覆寫（Method Overriding）」？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> When a child class defines a method with the exact same name as one in its parent class, replacing the parent&#x27;s behavior for that child.</span><span class="lang-zh">💡 <b>參考解答：</b>當子類別重新定義了一個與父類別同名的方法，用來改寫或客製化該子類別專屬的行為。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What is Polymorphism in OOP?</span><span class="lang-zh">什麼是 OOP 中的「多型（Polymorphism）」？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> The ability for different object classes to respond to the same method name (e.g., `.speak()` or `.area()`) in their own specialized way.</span><span class="lang-zh">💡 <b>參考解答：</b>不同類別的物件對相同的方法名稱（例如 `.speak()` 或 `.area()`）做出各自專屬的回應——「同一介面，多種型態」。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What does `isinstance(obj, ParentClass)` return if `obj` is an instance of `ChildClass(ParentClass)`?</span><span class="lang-zh">如果 `obj` 是子類別的實例，呼叫 `isinstance(obj, 父類別)` 會回傳什麼？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> `True`, because an instance of a subclass is also considered an instance of its parent class.</span><span class="lang-zh">💡 <b>參考解答：</b>`True`！因為子類別的實例在邏輯上同時也是父類別的一種（IS-A 關係）。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What is the `@property` decorator used for?</span><span class="lang-zh">`@property` 裝飾器的主要用途是什麼？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> Allows a getter method to be accessed like a normal attribute (e.g., `circle.area` instead of `circle.area()`) while keeping validation logic.</span><span class="lang-zh">💡 <b>參考解答：</b>讓方法可以像一般屬性一樣被直覺讀取（例如寫 `circle.area` 而非 `circle.area()`），同時保有計算或保護邏輯。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What does a `@prop.setter` decorator allow you to do?</span><span class="lang-zh">`@prop.setter` 裝飾器能讓你做到什麼？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> Intercepts attribute assignment (`obj.prop = value`) so you can validate the new value before storing it.</span><span class="lang-zh">💡 <b>參考解答：</b>在外部對屬性賦值（`obj.prop = value`）時自動攔截並進行資料驗證（例如禁止將半徑或年齡設為負數）。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">Why makes Polymorphism code so clean and extensible?</span><span class="lang-zh">為什麼多型（Polymorphism）能讓程式碼變得極度整潔且易於擴充？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> You can write a single loop (`for s in shapes: s.area()`) without writing long chains of `if type == Circle elif type == Rect`.</span><span class="lang-zh">💡 <b>參考解答：</b>因為你只需寫一行統一的呼叫（如 `for s in shapes: s.area()`），完全不需要寫冗長的 `if/elif` 去逐一判斷物件種類。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What is the difference between Inheritance (&#x27;IS-A&#x27;) and Composition (&#x27;HAS-A&#x27;)?</span><span class="lang-zh">繼承（IS-A）與組合（Composition, HAS-A）應該如何區分與選擇？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> Use Inheritance when B IS-A kind of A (`Dog` is an `Animal`). Use Composition when B HAS-A component A (`Car` has an `Engine`).</span><span class="lang-zh">💡 <b>參考解答：</b>當兩者是「是一種（IS-A）」關係時用繼承（狗是一種動物）；當兩者是「擁有零件（HAS-A）」關係時用組合（汽車擁有一顆引擎）。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What does raising `NotImplementedError` in a base class method signify?</span><span class="lang-zh">在父類別的方法中寫 `raise NotImplementedError` 代表什麼設計意圖？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> It defines an abstract interface requirement, forcing any subclass to override and implement that method.</span><span class="lang-zh">💡 <b>參考解答：</b>用來定義「抽象介面契約」，強制要求所有繼承它的子類別都必須自己實作該方法。</span></div>
+                        </li>
+                    </ol>
+                </div>
+                <button id="toggle-answers-btn" class="btn btn-outline" style="margin-top: 20px; width: 100%; transition: background 0.3s, color 0.3s;" onclick="toggleQuizAnswers()"><span class="lang-en">✨ Submit Quiz & Show Answers</span><span class="lang-zh">✨ 提交測驗並顯示解答</span></button>
+            </section>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 40px;">
+                <a href="week11.html" class="btn btn-outline" style="padding: 8px 16px;">← Week 11</a>
+                <a href="week13.html" class="btn btn-primary" style="padding: 8px 16px;">Week 13 →</a>
+            </div>
+
+            <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-secondary); font-size: 0.85rem;">© 2026 Stellark Academy | Stellark AI × Life Studio. All rights reserved.</footer>
+        </main>
+    </div>
+
+    <!-- 💻 Interactive Coding Modal Simulator (#colab-modal) with In-Browser Python Execution -->
+    <div id="colab-modal" class="modal-overlay" onclick="if(event.target===this)closeColabModal()">
+        <div class="colab-window">
+            <div class="colab-header">
+                <div class="colab-dots"><i></i><i></i><i></i></div>
+                <span class="colab-title">Unit12_OOP_Advanced.ipynb</span>
+                <div class="colab-nav-group">
+                    <button class="colab-nav-btn" onclick="stepColabLab(-1)" title="Previous Lab">◀ Prev</button>
+                    <span id="colab-lab-counter" style="color:#94a3b8; font-size:0.78rem; font-family:monospace; padding:0 4px;">1 / 20</span>
+                    <button class="colab-nav-btn" onclick="stepColabLab(1)" title="Next Lab">Next ▶</button>
+                </div>
+                <button class="colab-close" onclick="closeColabModal()" aria-label="Close">&times;</button>
+            </div>
+            <div class="colab-body">
+                <div class="colab-top-bar">
+                    <h3 id="colab-task-title">Loading...</h3>
+                    <div style="display:flex; gap:6px; flex-shrink:0;">
+                        <button class="colab-mini-btn" onclick="resetColabCode()"><span class="lang-en">↺ Reset Code</span><span class="lang-zh">↺ 重置程式</span></button>
+                        <button class="colab-mini-btn" onclick="copyColabCode()"><span class="lang-en">📋 Copy</span><span class="lang-zh">📋 複製</span></button>
+                    </div>
+                </div>
+                <div class="colab-cell">
+                    <button class="colab-run-btn" onclick="runPythonInBrowser()" title="Run Python in Browser (Ctrl+Enter)">▶</button>
+                    <textarea id="colab-code" spellcheck="false" aria-label="Python Code Editor"></textarea>
+                </div>
+                <div id="colab-output-panel" class="colab-output-panel">
+                    <div class="colab-output-header">
+                        <span id="colab-engine-status">⚡ Python Live Output Console</span>
+                        <button class="colab-mini-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="clearColabOutput()">Clear</button>
+                    </div>
+                    <pre id="colab-output-text"></pre>
+                    <canvas id="colab-canvas" width="520" height="240"></canvas>
+                </div>
+            </div>
+            <div class="colab-footer">
+                <button id="colab-run-browser-btn" onclick="runPythonInBrowser()" class="btn btn-run-browser">
+                    <span class="lang-en">▶ Run Code Here in Browser (Ctrl+Enter)</span>
+                    <span class="lang-zh">▶ 線上直接執行 Python 程式 (Ctrl+Enter)</span>
+                </button>
+                <button id="colab-execute-btn" onclick="executeInColab()" class="btn btn-primary">
+                    <span class="lang-en">🚀 Copy & Open in Google Colab</span>
+                    <span class="lang-zh">🚀 複製並開啟 Google Colab</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const colabSnippets = ["class Animal:\n    def __init__(self, name, sound):\n        self.name = name\n        self.sound = sound\n\nprint(\"Base class Animal ready!\")", "class Animal:\n    def __init__(self, name, sound):\n        self.name = name\n        self.sound = sound\n    def speak(self):\n        return f\"{self.name} says {self.sound}!\"\n\nprint(Animal(\"Generic\", \"Hello\").speak())", "class Animal:\n    def __init__(self, name): self.name = name\n    def speak(self): return f\"{self.name} makes a sound.\"\n\nclass Dog(Animal):\n    pass\n\nprint(Dog(\"Rex\").speak())", "class Animal:\n    def __init__(self, name): self.name = name\n    def speak(self): return f\"{self.name} makes a sound.\"\n\nclass Dog(Animal):\n    def speak(self):\n        return f\"🐶 {self.name} barks: Woof! Woof!\"\n\nprint(Dog(\"Rex\").speak())", "class Animal:\n    def __init__(self, name):\n        self.name = name\n\nclass Dog(Animal):\n    def __init__(self, name, breed):\n        super().__init__(name)\n        self.breed = breed\n\nd = Dog(\"Buddy\", \"Golden Retriever\")\nprint(f\"{d.name} is a {d.breed}\")", "class Animal:\n    def __init__(self, name): self.name = name\n\nclass Cat(Animal):\n    def speak(self):\n        return f\"🐱 {self.name} meows: Purr~ Meow!\"\n\nprint(Cat(\"Luna\").speak())", "class Animal:\n    def __init__(self, name): self.name = name\n\nclass Bird(Animal):\n    def fly(self):\n        return f\"🦅 {self.name} is soaring high in the sky!\"\n\nprint(Bird(\"Falcon\").fly())", "class Dog:\n    def __init__(self, n): self.n = n\n    def speak(self): return f\"🐶 {self.n}: Woof!\"\nclass Cat:\n    def __init__(self, n): self.n = n\n    def speak(self): return f\"🐱 {self.n}: Meow!\"\nclass Duck:\n    def __init__(self, n): self.n = n\n    def speak(self): return f\"🦆 {self.n}: Quack!\"\n\nfor pet in [Dog(\"Rex\"), Cat(\"Mimi\"), Duck(\"Donald\")]:\n    print(pet.speak())", "class Animal: pass\nclass Dog(Animal): pass\n\nd = Dog()\nprint(\"isinstance(d, Dog):\", isinstance(d, Dog))\nprint(\"isinstance(d, Animal):\", isinstance(d, Animal))", "class Animal: pass\nclass Dog(Animal): pass\n\nprint(\"issubclass(Dog, Animal):\", issubclass(Dog, Animal))", "class Vehicle:\n    def __init__(self, brand): self.brand = brand\n    def move(self): return f\"{self.brand} is moving.\"\n\nclass ElectricCar(Vehicle):\n    def move(self): return f\"⚡ {self.brand} glides silently on battery power!\"\n\nprint(ElectricCar(\"Stellark EV\").move())", "class Hero:\n    def __init__(self, name, lv): self.name, self.lv = name, lv\nclass Paladin(Hero):\n    def __str__(self): return f\"🛡️ [Paladin Lv.{self.lv}] {self.name}\"\n\nprint(Paladin(\"Arthur\", 50))", "class Shape:\n    def area(self):\n        raise NotImplementedError(\"Subclasses must implement area()\")\n\nprint(\"Abstract Shape interface defined.\")", "import math\nclass Shape: pass\nclass Circle(Shape):\n    def __init__(self, r): self.r = r\n    def area(self): return round(math.pi * self.r ** 2, 2)\nclass Rectangle(Shape):\n    def __init__(self, w, h): self.w, self.h = w, h\n    def area(self): return self.w * self.h\n\nshapes = [Circle(5), Rectangle(4, 6)]\nfor s in shapes:\n    print(f\"{type(s).__name__} area = {s.area()}\")", "class Circle:\n    def __init__(self, radius):\n        self._radius = radius\n\nc = Circle(10)\nprint(\"Internal _radius:\", c._radius)", "class Circle:\n    def __init__(self, radius):\n        self._radius = radius\n    @property\n    def area(self):\n        return round(3.14159 * self._radius ** 2, 2)\n\nc = Circle(10)\nprint(\"Access c.area like an attribute:\", c.area)", "class Circle:\n    def __init__(self, radius):\n        self._radius = radius\n    @property\n    def radius(self): return self._radius\n    @radius.setter\n    def radius(self, val):\n        if val <= 0: raise ValueError(\"Radius must be positive!\")\n        self._radius = val\n\nc = Circle(5)\nc.radius = 12\nprint(\"Updated valid radius:\", c.radius)", "class Engine:\n    def __init__(self, hp): self.hp = hp\n    def ignite(self): return f\"🔥 Vroom! ({self.hp} HP Engine active)\"\n\nclass Car:\n    def __init__(self, model, hp):\n        self.model = model\n        self.engine = Engine(hp)\n    def start(self):\n        return f\"🚗 {self.model}: {self.engine.ignite()}\"\n\nprint(Car(\"Stellark GT\", 680).start())", "class Mage:\n    def role(self): return \"🔮 Mage (Magic Attack)\"\nclass Warrior:\n    def role(self): return \"⚔️ Warrior (Melee Defense)\"\n\ndef hero_factory(kind):\n    catalog = {\"mage\": Mage, \"warrior\": Warrior}\n    return catalog[kind.lower()]()\n\nfor k in [\"mage\", \"warrior\"]:\n    print(hero_factory(k).role())", "class Character:\n    def __init__(self, name, hp):\n        self.name = name\n        self.hp = hp\n    def action(self):\n        return f\"{self.name} stands ready.\"\n\nclass Mage(Character):\n    def __init__(self, name, hp, mana):\n        super().__init__(name, hp)\n        self.mana = mana\n    def action(self):\n        return f\"🔮 {self.name} (HP:{self.hp}, MP:{self.mana}) casts Meteor Shower!\"\n\nclass Knight(Character):\n    def action(self):\n        return f\"🛡️ {self.name} (HP:{self.hp}) raises Aegis Shield!\"\n\nparty = [Mage(\"Tessa\", 320, 999), Knight(\"Xavier\", 850)]\nprint(\"⚔️ === Stellark RPG Battle Turn ===\")\nfor member in party:\n    print(member.action())"];
+        let currentLabIndex = 0;
+        let pyodideInstance = null;
+        let pyodideLoading = false;
+
+        function copyPrompt() {
+            const box = document.getElementById('tessa-prompt-box');
+            const isEn = document.documentElement.lang === 'en';
+            const span = box.querySelector(isEn ? '.lang-en:not(.copy-btn *)' : '.lang-zh:not(.copy-btn *)');
+            const text = span ? span.innerText.trim() : box.innerText.replace('複製咒語', '').replace('Copy Spell', '').trim();
+            navigator.clipboard.writeText(text);
+            alert(isEn ? '✨ Magic spell copied! Paste it to Gemini / ChatGPT to boot up Tessa.' : '✨ 智慧咒語已複製！請貼給 Gemini 或 ChatGPT 啟動數位雙生助教 Tessa。');
+        }
+
+        function getLabTitle(index) {
+            const items = document.querySelectorAll('.lab-item');
+            if (!items[index]) return 'Lab ' + (index + 1);
+            const isEn = document.documentElement.lang === 'en';
+            const span = items[index].querySelector(isEn ? '.lang-en' : '.lang-zh');
+            return span ? span.innerText.trim() : items[index].innerText.trim();
+        }
+
+        function openColabModal(index, customTitle) {
+            currentLabIndex = Math.max(0, Math.min(index, colabSnippets.length - 1));
+            document.getElementById('colab-task-title').innerText = customTitle || getLabTitle(currentLabIndex);
+            document.getElementById('colab-code').value = colabSnippets[currentLabIndex] || '';
+            document.getElementById('colab-lab-counter').innerText = (currentLabIndex + 1) + ' / ' + colabSnippets.length;
+            clearColabOutput();
+            document.getElementById('colab-modal').classList.add('active');
+        }
+
+        function stepColabLab(delta) {
+            const nextIndex = (currentLabIndex + delta + colabSnippets.length) % colabSnippets.length;
+            openColabModal(nextIndex);
+        }
+
+        function resetColabCode() {
+            document.getElementById('colab-code').value = colabSnippets[currentLabIndex] || '';
+            clearColabOutput();
+        }
+
+        function copyColabCode() {
+            const code = document.getElementById('colab-code').value;
+            navigator.clipboard.writeText(code);
+        }
+
+        function clearColabOutput() {
+            const panel = document.getElementById('colab-output-panel');
+            const outText = document.getElementById('colab-output-text');
+            const canvas = document.getElementById('colab-canvas');
+            panel.classList.remove('active');
+            outText.innerText = '';
+            canvas.style.display = 'none';
+        }
+
+        function closeColabModal() {
+            document.getElementById('colab-modal').classList.remove('active');
+        }
+
+        // Visual Canvas Renderer for Matplotlib (W16) & Pygame Snake (W17-W18)
+        function renderVisualPreview(code) {
+            const canvas = document.getElementById('colab-canvas');
+            const ctx = canvas.getContext('2d');
+            if (code.includes('pygame')) {
+                canvas.style.display = 'block';
+                ctx.fillStyle = '#0f0f1a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // Grid lines
+                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                for (let x = 0; x < canvas.width; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+                for (let y = 0; y < canvas.height; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+                // Draw Snake segments
+                const segs = [[180, 120], [160, 120], [140, 120], [120, 120], [100, 120]];
+                segs.forEach(([sx, sy], i) => {
+                    ctx.fillStyle = i === 0 ? '#00ff88' : '#10b981';
+                    ctx.fillRect(sx, sy, 18, 18);
+                });
+                // Draw Food
+                ctx.fillStyle = '#f43f5e';
+                ctx.beginPath();
+                ctx.arc(269, 129, 9, 0, Math.PI * 2);
+                ctx.fill();
+                // HUD
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = 'bold 13px monospace';
+                ctx.fillText('🐍 Stellark Pygame Canvas Preview | Score: 180', 14, 24);
+            } else if (code.includes('matplotlib') || code.includes('plt.') || code.includes('sns.')) {
+                canvas.style.display = 'block';
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#334155';
+                ctx.strokeRect(45, 25, 440, 180);
+                const vals = [65, 82, 91, 96];
+                const labels = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'];
+                const colors = ['#a78bfa', '#00d4ff', '#fbbf24', '#f472b6'];
+                vals.forEach((v, i) => {
+                    const bh = (v / 100) * 145;
+                    const bx = 85 + i * 100;
+                    const by = 205 - bh;
+                    ctx.fillStyle = colors[i];
+                    ctx.fillRect(bx, by, 52, bh);
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.fillText(v + '%', bx + 12, by - 6);
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillText(labels[i], bx + 4, 224);
+                });
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 13px sans-serif';
+                ctx.fillText('📊 Matplotlib / Seaborn Live Chart Preview', 145, 18);
+            }
+        }
+
+        async function ensurePyodide() {
+            if (pyodideInstance) return pyodideInstance;
+            if (pyodideLoading) {
+                while (pyodideLoading) await new Promise(r => setTimeout(r, 100));
+                return pyodideInstance;
+            }
+            pyodideLoading = true;
+            try {
+                if (!window.loadPyodide) {
+                    await new Promise((resolve, reject) => {
+                        const s = document.createElement('script');
+                        s.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
+                        s.onload = resolve;
+                        s.onerror = reject;
+                        document.head.appendChild(s);
+                    });
+                }
+                pyodideInstance = await window.loadPyodide({
+                    indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/'
+                });
+                // Inject educational shims for browser-friendly input(), requests, bs4, pandas, matplotlib, pygame
+                await pyodideInstance.runPythonAsync("\nimport sys, types, builtins, json, re\ntry:\n    import js\n    def _browser_input(prompt_text=\"\"):\n        val = js.prompt(str(prompt_text), \"\")\n        print(f\"{prompt_text}{val if val is not None else ''}\")\n        return val if val is not None else \"\"\n    builtins.input = _browser_input\nexcept ImportError:\n    pass\n\n# Lightweight requests shim\nreq_mod = types.ModuleType(\"requests\")\nclass _Resp:\n    def __init__(self, url):\n        self.url = url\n        self.status_code = 200\n        self.text = \"<html><head><title>Stellark AI x Life Studio</title></head><body><h1>Stellark Academy</h1><a href='/python'>Python</a></body></html>\"\n    def json(self):\n        return {\"city\": \"Taipei\", \"temp_c\": 25.4, \"humidity\": 68, \"status\": \"ok\"}\n    def __repr__(self):\n        return \"<Response [200]>\"\nreq_mod.get = lambda url, **kwargs: _Resp(url)\nreq_mod.exceptions = types.SimpleNamespace(ConnectionError=ConnectionError, RequestException=Exception)\nsys.modules[\"requests\"] = req_mod\n\n# Lightweight bs4 shim\nbs4_mod = types.ModuleType(\"bs4\")\nclass _Tag:\n    def __init__(self, name, text=\"\", attrs=None, raw=\"\"):\n        self.name = name\n        self.text = text\n        self.attrs = attrs or {}\n        self._raw = raw\n    def get(self, k, default=None):\n        return self.attrs.get(k, default)\n    def __getitem__(self, k):\n        return self.attrs[k]\n    def find(self, tag, class_=None):\n        items = self.find_all(tag, class_=class_)\n        return items[0] if items else _Tag(tag, \"\")\n    def find_all(self, tag, class_=None):\n        pat = rf\"<{tag}([^>]*)>(.*?)</{tag}>\"\n        res = []\n        for m in re.finditer(pat, self._raw, re.S | re.I):\n            attr_s, inner = m.group(1), m.group(2)\n            if class_ and \"class=\" in attr_s and class_ not in attr_s:\n                continue\n            href_m = re.search(r'href=[\"\\']([^\"\\']+)[\"\\']', attr_s)\n            attrs = {\"href\": href_m.group(1)} if href_m else {}\n            clean_t = re.sub(r\"<[^>]+>\", \"\", inner)\n            res.append(_Tag(tag, clean_t, attrs, inner))\n        return res\n    def select(self, selector):\n        parts = selector.split(\".\")\n        tag = parts[0] or \"div\"\n        cls = parts[1] if len(parts) > 1 else None\n        return self.find_all(tag, class_=cls)\n\nclass BeautifulSoup(_Tag):\n    def __init__(self, html_str, parser=\"html.parser\"):\n        super().__init__(\"document\", re.sub(r\"<[^>]+>\", \"\", html_str), {}, html_str)\n        self.title = self.find(\"title\")\nbs4_mod.BeautifulSoup = BeautifulSoup\nsys.modules[\"bs4\"] = bs4_mod\n\n# Lightweight pandas shim\npd_mod = types.ModuleType(\"pandas\")\nclass Series:\n    def __init__(self, data, name=None):\n        self.data = list(data)\n        self.name = name\n    def mean(self):\n        nums = [x for x in self.data if isinstance(x, (int, float))]\n        return round(sum(nums)/len(nums), 2) if nums else 0\n    def sum(self):\n        return sum(x for x in self.data if isinstance(x, (int, float)))\n    def agg(self, funcs):\n        nums = [x for x in self.data if isinstance(x, (int, float))]\n        return {f: (len(nums) if f==\"count\" else (round(sum(nums)/len(nums),2) if f==\"mean\" else max(nums))) for f in funcs}\n    def value_counts(self):\n        counts = {}\n        for x in self.data: counts[x] = counts.get(x, 0) + 1\n        return \"\\n\".join(f\"{k}    {v}\" for k, v in sorted(counts.items(), key=lambda i: -i[1]))\n    def __gt__(self, other): return [x is not None and x > other for x in self.data]\n    def __ge__(self, other): return [x is not None and x >= other for x in self.data]\n    def __repr__(self):\n        lines = [f\"{i}    {v}\" for i, v in enumerate(self.data)]\n        return \"\\n\".join(lines) + (f\"\\nName: {self.name}\" if self.name else \"\")\n\nclass _GroupBy:\n    def __init__(self, rows, by_col):\n        self.rows, self.by_col = rows, by_col\n    def __getitem__(self, val_col):\n        groups = {}\n        for r in self.rows:\n            groups.setdefault(r[self.by_col], []).append(r[val_col])\n        class _GSeries:\n            def mean(s):\n                return \"\\n\".join(f\"{k:<8} {sum(v)/len(v):.2f}\" for k, v in groups.items())\n            def agg(s, funcs):\n                lines = [f\"{'Group':<8} \" + \" \".join(f\"{f:>6}\" for f in funcs)]\n                for k, v in groups.items():\n                    lines.append(f\"{k:<8} {len(v):>6} {sum(v)/len(v):>6.1f} {max(v):>6}\")\n                return \"\\n\".join(lines)\n        return _GSeries()\n\nclass DataFrame:\n    def __init__(self, data):\n        if isinstance(data, dict):\n            cols = list(data.keys())\n            n = len(next(iter(data.values()))) if cols else 0\n            self.rows = [{c: data[c][i] for c in cols} for i in range(n)]\n            self.columns = cols\n        else:\n            self.rows = list(data)\n            self.columns = list(self.rows[0].keys()) if self.rows else []\n    @property\n    def shape(self): return (len(self.rows), len(self.columns))\n    def head(self, n=5): return DataFrame(self.rows[:n])\n    def tail(self, n=5): return DataFrame(self.rows[-n:])\n    def __getitem__(self, key):\n        if isinstance(key, str): return Series([r.get(key) for r in self.rows], name=key)\n        if isinstance(key, list) and all(isinstance(x, bool) for x in key):\n            return DataFrame([r for r, keep in zip(self.rows, key) if keep])\n        if isinstance(key, list):\n            return DataFrame([{k: r.get(k) for k in key} for r in self.rows])\n    def __setitem__(self, key, vals):\n        if key not in self.columns: self.columns.append(key)\n        for r, v in zip(self.rows, vals): r[key] = v\n    def describe(self):\n        num_cols = [c for c in self.columns if any(isinstance(r[c], (int, float)) for r in self.rows)]\n        lines = []\n        for c in num_cols:\n            vals = [r[c] for r in self.rows if isinstance(r[c], (int, float))]\n            lines.append(f\"[{c}] count={len(vals)}, mean={sum(vals)/len(vals):.2f}, min={min(vals)}, max={max(vals)}\")\n        return \"\\n\".join(lines)\n    def isnull(self):\n        cols, rows = self.columns, self.rows\n        class _NullSummary:\n            def sum(s):\n                return \"\\n\".join(f\"{c:<8} {sum(1 for r in rows if r.get(c) is None)}\" for c in cols)\n        return _NullSummary()\n    def fillna(self, val):\n        return DataFrame([{k: (val if v is None else v) for k, v in r.items()} for r in self.rows])\n    def dropna(self):\n        return DataFrame([r for r in self.rows if all(v is not None for v in r.values())])\n    def sort_values(self, col, ascending=True):\n        return DataFrame(sorted(self.rows, key=lambda r: r.get(col, 0), reverse=not ascending))\n    def nlargest(self, n, col):\n        return self.sort_values(col, ascending=False).head(n)\n    def groupby(self, col): return _GroupBy(self.rows, col)\n    def to_csv(self, index=False):\n        lines = [\",\".join(self.columns)]\n        for r in self.rows: lines.append(\",\".join(str(r.get(c, \"\")) for c in self.columns))\n        return \"\\n\".join(lines)\n    def __repr__(self):\n        if not self.rows: return \"Empty DataFrame\"\n        header = \"   \" + \"  \".join(f\"{c:<10}\" for c in self.columns)\n        lines = [header]\n        for i, r in enumerate(self.rows):\n            lines.append(f\"{i:<2} \" + \"  \".join(f\"{str(r.get(c, '')):<10}\" for c in self.columns))\n        return \"\\n\".join(lines)\npd_mod.Series = Series\npd_mod.DataFrame = DataFrame\nsys.modules[\"pandas\"] = pd_mod\n\n# Lightweight matplotlib & seaborn shim\nmpl_mod = types.ModuleType(\"matplotlib\")\nplt_mod = types.ModuleType(\"matplotlib.pyplot\")\nplt_mod.plot = lambda *a, **k: print(f\"📈 plt.plot({a}, {k})\")\nplt_mod.bar = lambda *a, **k: print(f\"📊 plt.bar({a}, {k})\")\nplt_mod.barh = lambda *a, **k: print(f\"📊 plt.barh({a}, {k})\")\nplt_mod.pie = lambda *a, **k: print(f\"🥧 plt.pie({a}, {k})\")\nplt_mod.scatter = lambda *a, **k: print(f\"✨ plt.scatter({a}, {k})\")\nplt_mod.hist = lambda *a, **k: print(f\"📊 plt.hist({a}, {k})\")\nplt_mod.title = lambda t: print(f\"🏷️ Chart Title: '{t}'\")\nplt_mod.xlabel = lambda l: print(f\"➡️ X-Axis: '{l}'\")\nplt_mod.ylabel = lambda l: print(f\"⬆️ Y-Axis: '{l}'\")\nplt_mod.legend = lambda: print(\"🔖 Legend enabled\")\nplt_mod.grid = lambda g=True: print(f\"🕸️ Grid: {g}\")\nplt_mod.subplot = lambda r, c, i: print(f\"🖼️ Subplot({r}x{c}, panel #{i})\")\nplt_mod.savefig = lambda fn, dpi=100: print(f\"💾 Saved figure '{fn}' at {dpi} DPI\")\nplt_mod.show = lambda: print(\"✅ Chart rendered in visual canvas below!\")\nmpl_mod.pyplot = plt_mod\nsys.modules[\"matplotlib\"] = mpl_mod\nsys.modules[\"matplotlib.pyplot\"] = plt_mod\n\nsns_mod = types.ModuleType(\"seaborn\")\nsns_mod.set_theme = lambda **k: print(f\"🎨 Seaborn theme set: {k}\")\nsns_mod.heatmap = lambda m, **k: print(f\"🔥 Seaborn Heatmap rendered ({len(m)}x{len(m[0])} matrix)\")\nsns_mod.boxplot = lambda **k: print(\"📦 Seaborn Boxplot rendered\")\nsys.modules[\"seaborn\"] = sns_mod\n\n# Lightweight pygame shim\npg_mod = types.ModuleType(\"pygame\")\npg_mod.QUIT = 256\npg_mod.init = lambda: (6, 0)\npg_mod.quit = lambda: None\nclass _Surface:\n    def __init__(self, size):\n        self.size = size\n    def fill(self, color):\n        return None\n    def blit(self, source, dest):\n        return None\n    def __repr__(self):\n        return f\"<Surface({self.size[0]}x{self.size[1]}x32 SW)>\"\npg_mod.display = types.SimpleNamespace(\n    set_mode=lambda size: _Surface(size),\n    set_caption=lambda title: None,\n    flip=lambda: None,\n    update=lambda: None\n)\npg_mod.event = types.SimpleNamespace(get=lambda: [types.SimpleNamespace(type=256)])\npg_mod.draw = types.SimpleNamespace(rect=lambda s, c, r: None, line=lambda *a: None, circle=lambda *a: None)\npg_mod.time = types.SimpleNamespace(Clock=lambda: types.SimpleNamespace(tick=lambda fps: fps))\npg_mod.font = types.SimpleNamespace(SysFont=lambda name, sz: types.SimpleNamespace(render=lambda txt, aa, col: f\"<TextSurface '{txt}'>\"))\nsys.modules[\"pygame\"] = pg_mod\n");
+            } finally {
+                pyodideLoading = false;
+            }
+            return pyodideInstance;
+        }
+
+        async function runPythonInBrowser() {
+            const code = document.getElementById('colab-code').value;
+            const panel = document.getElementById('colab-output-panel');
+            const outText = document.getElementById('colab-output-text');
+            const status = document.getElementById('colab-engine-status');
+            const isEn = document.documentElement.lang === 'en';
+
+            panel.classList.add('active');
+            status.innerText = isEn ? '⏳ Initializing Python 3.11 WebAssembly Engine...' : '⏳ 正在啟動瀏覽器內建 Python 3.11 執行引擎...';
+            outText.innerText = isEn ? 'Running your Python code...' : '正在執行您的 Python 程式碼...';
+
+            try {
+                const pyodide = await ensurePyodide();
+                status.innerText = isEn ? '✅ Python 3.11 (Pyodide WebAssembly) — Execution Result' : '✅ 線上 Python 3.11 即時執行結果';
+                pyodide.runPython(`
+import sys, io
+_stdout_buf = io.StringIO()
+_stderr_buf = io.StringIO()
+sys.stdout = _stdout_buf
+sys.stderr = _stderr_buf
+`);
+                let result = await pyodide.runPythonAsync(code);
+                let stdout = pyodide.runPython("_stdout_buf.getvalue()");
+                let stderr = pyodide.runPython("_stderr_buf.getvalue()");
+                let finalOut = (stdout || '') + (stderr ? '\\n' + stderr : '');
+                if (!finalOut.trim() && result !== undefined && result !== null) {
+                    finalOut = String(result);
+                }
+                if (!finalOut.trim()) {
+                    finalOut = isEn
+                        ? '✅ Code executed successfully (no console print output). Tip: use print() to inspect variables!'
+                        : '✅ 程式已成功執行完畢（無螢幕輸出）。提示：可加上 print() 觀察變數內容！';
+                }
+                outText.style.color = '#e2e8f0';
+                outText.innerText = finalOut.trimEnd();
+                renderVisualPreview(code);
+            } catch (err) {
+                status.innerText = isEn ? '⚠️ Python Runtime Error / Traceback' : '⚠️ Python 執行期錯誤提示 (Traceback)';
+                outText.style.color = '#fca5a5';
+                outText.innerText = String(err);
+            }
+        }
+
+        function toggleQuizAnswers() {
+            const answers = document.querySelectorAll('.quiz-answer');
+            const btn = document.getElementById('toggle-answers-btn');
+            if (answers.length === 0) return;
+            const isShowing = answers[0].classList.contains('show');
+            if (isShowing) {
+                answers.forEach(a => a.classList.remove('show'));
+                btn.innerHTML = '<span class="lang-en">✨ Submit Quiz & Show Answers</span><span class="lang-zh">✨ 提交測驗並顯示解答</span>';
+                btn.classList.add('btn-outline');
+                btn.classList.remove('btn-primary');
+            } else {
+                answers.forEach(a => a.classList.add('show'));
+                btn.innerHTML = '<span class="lang-en">🙈 Hide Answers</span><span class="lang-zh">🙈 隱藏參考解答</span>';
+                btn.classList.remove('btn-outline');
+                btn.classList.add('btn-primary');
+            }
+        }
+
+        function executeInColab() {
+            const code = document.getElementById('colab-code').value;
+            const isEn = document.documentElement.lang === 'en';
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('colab-execute-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = isEn
+                    ? '✅ Code copied! Opening Colab... (Press Ctrl+V to paste)'
+                    : '✅ 程式碼已複製！正為您開啟 Colab... (進入後請按 Ctrl+V 貼上)';
+                btn.style.background = '#28c840';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                    window.open('https://colab.research.google.com/#create=true', '_blank');
+                }, 1000);
+            }).catch(() => {
+                window.open('https://colab.research.google.com/#create=true', '_blank');
+            });
+        }
+
+        // Keyboard shortcut Ctrl+Enter or Shift+Enter inside editor runs Python in browser
+        document.getElementById('colab-code').addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.shiftKey) && e.key === 'Enter') {
+                e.preventDefault();
+                runPythonInBrowser();
+            }
+        });
+
+        document.querySelectorAll('.lab-item').forEach((item, index) => {
+            const checkbox = item.querySelector('input');
+            if (checkbox) {
+                checkbox.addEventListener('click', (e) => e.stopPropagation());
+            }
+            item.addEventListener('click', () => {
+                openColabModal(index);
+            });
+        });
+
+        // Set nav button text on load
+        const curLang = localStorage.getItem('lang') || 'zh';
+        const navBtn = document.getElementById('nav-toggle-btn');
+        if (navBtn) navBtn.innerText = curLang === 'en' ? '中文' : 'EN';
+    </script>
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 14: 🔌 REST API &amp; Cloud Data Integration | Stellark Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../src/styles/tokens.css">
+    <link rel="stylesheet" href="../src/styles/reset.css">
+    <link rel="stylesheet" href="../src/styles/global.css">
+    <link rel="stylesheet" href="../src/styles/components.css">
+    <style>
+        :root { --sidebar-width: 280px; }
+        body { background: var(--color-bg-primary); color: var(--color-text-primary); }
+        h1, h2, h3, h4 { color: #ffffff; }
+        p, li, div { color: var(--color-text-primary); }
+        .lesson-layout { display: flex; min-height: 100vh; padding-top: 72px; }
+        .lesson-sidebar { width: var(--sidebar-width); height: calc(100vh - 72px); position: fixed; left: 0; top: 72px; background: var(--color-bg-secondary); border-right: 1px solid var(--color-border); padding: var(--space-lg); overflow-y: auto; }
+        .lesson-content { flex: 1; margin-left: var(--sidebar-width); padding: var(--space-2xl); max-width: 940px; }
+        .lesson-nav-list { list-style: none; }
+        .lesson-nav-item { margin-bottom: var(--space-sm); }
+        .lesson-nav-link { color: #ffffff; font-size: 0.95rem; font-weight: 500; text-decoration: none; display: block; padding: 10px 14px; border-radius: 8px; transition: all 0.2s; }
+        .lesson-nav-link:hover, .lesson-nav-link.active { color: var(--color-accent-purple); background: rgba(167,139,250,0.12); }
+        .week-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 12px; }
+        .week-pill { text-align: center; padding: 6px 4px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; color: var(--color-text-secondary); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); text-decoration: none; transition: all 0.2s; }
+        .week-pill:hover { color: #fff; border-color: var(--color-accent-cyan); background: rgba(0,212,255,0.1); }
+        .week-pill--active { color: #0f0f1a; background: var(--color-accent-cyan); border-color: var(--color-accent-cyan); font-weight: 800; }
+        .step-card { background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--border-radius-lg); padding: var(--space-xl); margin-bottom: var(--space-xl); }
+        .step-number { display: inline-block; width: 32px; height: 32px; background: var(--color-accent-purple); color: white; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 800; margin-bottom: var(--space-md); }
+        .lab-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: var(--space-md); }
+        .lab-item { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; color: #ffffff; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.2s, background 0.2s, border-color 0.2s; position: relative; overflow: hidden; }
+        .lab-item input { accent-color: var(--color-accent-purple); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+        .lab-item:hover { transform: translateY(-2px); background: rgba(167,139,250,0.16); border-color: rgba(0,212,255,0.55); }
+        .lab-item::after { content: '💻 Run Online | 點擊線上寫程式'; position: absolute; right: 10px; font-size: 0.72rem; color: #00d4ff; opacity: 0; transition: opacity 0.2s; font-weight: 700; background: rgba(15,15,26,0.92); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(0,212,255,0.35); pointer-events: none; }
+        .lab-item:hover::after { opacity: 1; }
+        .quiz-section { background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), rgba(167, 139, 250, 0.04)); border: 1px solid rgba(0, 212, 255, 0.22); padding: var(--space-xl); border-radius: var(--border-radius-lg); }
+        .prompt-box { background: #0d0d18; border: 1px dashed var(--color-accent-purple); padding: var(--space-md); border-radius: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.88rem; color: #c4b5fd; white-space: pre-wrap; position: relative; line-height: 1.6; }
+        .copy-btn { position: absolute; top: 10px; right: 10px; background: var(--color-accent-purple); color: #0f0f1a; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 700; }
+        .copy-btn:hover { filter: brightness(1.1); }
+
+        /* Interactive #colab-modal Simulator & Live Python Runner */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 20, 0.88); backdrop-filter: blur(10px); z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s ease; padding: 16px; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .colab-window { width: 100%; max-width: 780px; max-height: 92vh; display: flex; flex-direction: column; background: #1e1e24; border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 14px; box-shadow: 0 25px 60px rgba(0,0,0,0.65); overflow: hidden; transform: translateY(16px); transition: transform 0.25s ease; }
+        .modal-overlay.active .colab-window { transform: translateY(0); }
+        .colab-header { background: #282833; padding: 12px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #111; flex-shrink: 0; }
+        .colab-dots { display: flex; gap: 6px; }
+        .colab-dots i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+        .colab-dots i:nth-child(1) { background: #ff5f57; }
+        .colab-dots i:nth-child(2) { background: #febc2e; }
+        .colab-dots i:nth-child(3) { background: #28c840; }
+        .colab-title { color: #e2e8f0; font-size: 0.88rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; flex-grow: 1; display: flex; align-items: center; gap: 8px; }
+        .colab-title::before { content: '🐍'; }
+        .colab-nav-group { display: flex; align-items: center; gap: 6px; }
+        .colab-nav-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .colab-nav-btn:hover { background: rgba(0, 212, 255, 0.2); border-color: #00d4ff; color: #fff; }
+        .colab-close { background: none; border: none; color: #94a3b8; font-size: 1.6rem; cursor: pointer; line-height: 1; padding: 0 4px; transition: color 0.2s; }
+        .colab-close:hover { color: #fff; }
+        .colab-body { padding: 20px 24px; background: #181820; overflow-y: auto; flex: 1; }
+        .colab-top-bar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+        #colab-task-title { color: #f8fafc; font-size: 1.08rem; margin: 0; font-weight: 700; line-height: 1.4; }
+        .colab-mini-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); color: #cbd5e1; border-radius: 6px; padding: 4px 10px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; }
+        .colab-mini-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .colab-cell { display: flex; background: #0b0b12; border: 1px solid #334155; border-radius: 10px; position: relative; padding: 12px; transition: border-color 0.2s; }
+        .colab-cell:focus-within { border-color: #00d4ff; box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.15); }
+        .colab-run-btn { width: 36px; height: 36px; background: linear-gradient(135deg, #00d4ff, #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.9rem; cursor: pointer; margin-right: 12px; flex-shrink: 0; transition: transform 0.15s, filter 0.15s; border: none; font-weight: bold; box-shadow: 0 4px 12px rgba(0,212,255,0.3); }
+        .colab-run-btn:hover { transform: scale(1.08); filter: brightness(1.15); }
+        #colab-code { width: 100%; min-height: 150px; background: transparent; border: none; outline: none; color: #9cdcfe; font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 0.94rem; line-height: 1.55; resize: vertical; }
+        .colab-output-panel { margin-top: 14px; background: #0f172a; border: 1px solid #1e293b; border-left: 3px solid #28c840; border-radius: 8px; padding: 12px 16px; display: none; }
+        .colab-output-panel.active { display: block; }
+        .colab-output-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+        #colab-output-text { margin: 0; font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 0.9rem; color: #e2e8f0; white-space: pre-wrap; line-height: 1.5; }
+        #colab-canvas { display: none; margin-top: 10px; background: #090d16; border: 1px solid #334155; border-radius: 8px; max-width: 100%; }
+        .colab-footer { padding: 14px 24px; background: #22222c; border-top: 1px solid #333; display: flex; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
+        .colab-footer .btn { flex: 1; min-width: 200px; text-align: center; justify-content: center; border: none; font-size: 0.95rem; cursor: pointer; font-weight: 700; padding: 12px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-run-browser { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        .btn-run-browser:hover { filter: brightness(1.1); }
+
+        /* Quiz Answer Toggle */
+        .quiz-answer { display: none; margin-top: 8px; margin-bottom: 12px; padding: 12px 16px; background: rgba(0, 212, 255, 0.1); border-left: 3px solid var(--color-accent-cyan); color: #f1f5f9; border-radius: 4px; font-size: 0.95rem; line-height: 1.6; }
+        .quiz-answer.show { display: block; animation: fadeInQuiz 0.3s ease; }
+        @keyframes fadeInQuiz { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 900px) {
+            .lesson-sidebar { display: none; }
+            .lesson-content { margin-left: 0; padding: var(--space-lg); }
+            .lab-list { grid-template-columns: 1fr; }
+        }
+
+        :root[lang="en"] .lang-zh { display: none !important; }
+        :root[lang="zh"] .lang-en { display: none !important; }
+    </style>
+    <script>
+        document.documentElement.lang = localStorage.getItem('lang') || 'zh';
+        function toggleLang() {
+            let cur = document.documentElement.lang === 'en' ? 'zh' : 'en';
+            document.documentElement.lang = cur;
+            localStorage.setItem('lang', cur);
+            let btn = document.getElementById('nav-toggle-btn');
+            if (btn) btn.innerText = cur === 'en' ? '中文' : 'EN';
+        }
+    </script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav__container">
+            <a href="../index.html" class="nav__brand"><img src="./assets/stellark-logo.png" alt="Stellark Academy" class="nav__logo"> Stellark Academy</a>
+            <div class="nav__links" style="display:flex; align-items:center; gap:12px;">
+                <a href="../../index.html" class="nav__link" style="color:var(--color-accent-cyan); font-weight:600;"><span class="lang-en">🏠 Stellark Studio</span><span class="lang-zh">🏠 返回星月主站</span></a>
+                <a href="../index.html#labs" class="nav__link"><span class="lang-en">← Back to Labs</span><span class="lang-zh">← 返回實驗室總覽</span></a>
+                <button class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem;" onclick="openColabModal(0)"><span class="lang-en">💻 Online Python IDE</span><span class="lang-zh">💻 開啟線上寫程式</span></button>
+                <button id="nav-toggle-btn" class="btn btn-outline" style="padding: 6px 12px; font-weight: bold;" onclick="toggleLang()">EN</button>
+            </div>
+        </div>
+    </nav>
+    <div class="lesson-layout">
+        <aside class="lesson-sidebar">
+            <h4 style="margin-bottom: 14px; font-size: 1rem;"><span class="lang-en">Week 14 Menu</span><span class="lang-zh">Week 14 章節目錄</span></h4>
+            <ul class="lesson-nav-list">
+                <li class="lesson-nav-item"><a href="#intro" class="lesson-nav-link active"><span class="lang-en">1. Course Intro</span><span class="lang-zh">1. 本週主題</span></a></li>
+                <li class="lesson-nav-item"><a href="#concepts" class="lesson-nav-link"><span class="lang-en">2. Core Concepts</span><span class="lang-zh">2. 核心觀念</span></a></li>
+                <li class="lesson-nav-item"><a href="#prompt" class="lesson-nav-link"><span class="lang-en">3. Summon Tessa</span><span class="lang-zh">3. 召喚助教</span></a></li>
+                <li class="lesson-nav-item"><a href="#practice" class="lesson-nav-link"><span class="lang-en">4. 20 Hands-On Labs</span><span class="lang-zh">4. 20 題實作練習</span></a></li>
+                <li class="lesson-nav-item"><a href="#quiz" class="lesson-nav-link"><span class="lang-en">5. 10 Quizzes</span><span class="lang-zh">5. 10 題隨堂測驗</span></a></li>
+            </ul>
+            <hr style="border:none; border-top:1px solid var(--color-border); margin: 20px 0;">
+            <h4 style="font-size: 0.85rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;"><span class="lang-en">18-Week Quick Jump</span><span class="lang-zh">18 週快速跳轉</span></h4>
+            <div class="week-grid">
+                <a href="week01.html" class="week-pill">W01</a>
+                <a href="week02.html" class="week-pill">W02</a>
+                <a href="week03.html" class="week-pill">W03</a>
+                <a href="week04.html" class="week-pill">W04</a>
+                <a href="week05.html" class="week-pill">W05</a>
+                <a href="week06.html" class="week-pill">W06</a>
+                <a href="week07.html" class="week-pill">W07</a>
+                <a href="week08.html" class="week-pill">W08</a>
+                <a href="week09.html" class="week-pill">W09</a>
+                <a href="week10.html" class="week-pill">W10</a>
+                <a href="week11.html" class="week-pill">W11</a>
+                <a href="week12.html" class="week-pill">W12</a>
+                <a href="week13.html" class="week-pill">W13</a>
+                <a href="week14.html" class="week-pill week-pill--active">W14</a>
+                <a href="week15.html" class="week-pill">W15</a>
+                <a href="week16.html" class="week-pill">W16</a>
+                <a href="week17.html" class="week-pill">W17</a>
+                <a href="week18.html" class="week-pill">W18</a>
+            </div>
+        </aside>
+        <main class="lesson-content">
+            <header id="intro" style="margin-bottom: 40px;">
+                <span class="hero__badge"><span class="lang-en">PHASE 4: Final Project &amp; AI Data</span><span class="lang-zh">PHASE 4: 數據與實戰專案</span></span>
+                <h1 style="font-size: 2.4rem; margin: 12px 0;"><span class="lang-en">🔌 REST API &amp; Cloud Data Integration</span><span class="lang-zh">🔌 REST API 數據對接與雲端整合</span></h1>
+                <p style="color: var(--color-text-secondary); font-size: 1.1rem; line-height: 1.7;"><span class="lang-en">This week: RESTful API architecture (GET, POST), parsing JSON responses (`response.json()`), query parameters (`params={}`), environment variable API keys, and building a Multi-City Weather &amp; Stock Dashboard!</span><span class="lang-zh">本週核心：RESTful API 協定（GET / POST）、解析巢狀 JSON 回應（`response.json()`）、查詢參數傳遞、API Key 安全管理，實作「多城市即時氣象與半導體股價儀表板」！</span></p>
+            </header>
+
+            <section id="concepts" class="step-card">
+                <span class="step-number">01</span>
+                <h3><span class="lang-en">Core Concept: REST API, JSON Payload &amp; Secret Management</span><span class="lang-zh">大師觀念：REST API 握手協定、JSON 解析與金鑰安全</span></h3>
+                <p style="line-height: 1.75; margin-bottom: 16px;"><span class="lang-en">APIs are the handshakes of the internet — standardized interfaces that let programs talk to each other. Mastering REST APIs opens the door to real-time data: weather, stocks, maps, and AI models.</span><span class="lang-zh">API（應用程式介面）是網際網路的握手協定，讓不同系統能以標準格式交換資料。掌握 REST API 與 JSON，就能即時串接全球氣象、股市行情與 AI 大語言模型！</span></p>
+                <div class="prompt-box"><code>import json
+api_response = {&quot;city&quot;: &quot;Hsinchu&quot;, &quot;temp_c&quot;: 24.5, &quot;condition&quot;: &quot;Sunny ☀️&quot;, &quot;humidity&quot;: 62}
+print(f&quot;📍 {api_response[&#x27;city&#x27;]} | 🌡️ {api_response[&#x27;temp_c&#x27;]}°C | {api_response[&#x27;condition&#x27;]}&quot;)</code></div>
+            </section>
+
+            <section id="prompt" class="step-card" style="border-color: var(--color-accent-purple);">
+                <h3 style="color: var(--color-accent-purple);"><span class="lang-en">🤖 Summon AI Assistant (Tessa)</span><span class="lang-zh">🤖 召喚數位雙生助教 (Tessa)</span></h3>
+                <p style="color: var(--color-text-secondary); font-size: 0.95rem; margin-bottom: 12px;"><span class="lang-en">Stuck on a concept? Copy the System Prompt below and paste it into Gemini, ChatGPT, or Claude to summon your 24/7 Socratic AI tutor:</span><span class="lang-zh">遇到困難了嗎？複製下方的智慧咒語（System Prompt）貼給 Gemini、ChatGPT 或 Claude，啟動專屬你的 24 小時蘇格拉底式 AI 助教：</span></p>
+                <div class="prompt-box" id="tessa-prompt-box"><button class="copy-btn" onclick="copyPrompt()"><span class="lang-en">Copy Spell</span><span class="lang-zh">複製咒語</span></button><span class="lang-en">You are &quot;Tessa&quot;, my Digital Twin AI Teaching Assistant. I am learning Week 14: REST APIs, JSON parsing, query params, and API key security. Please guide me with Socratic questions.</span><span class="lang-zh">你是 &quot;Tessa&quot;，我的數位雙生 AI 教學助教。我正在學習第 14 週「API 數據對接整合」。當我在解析多層巢狀 JSON、HTTP 狀態碼或環境變數保護 API Key 遇到疑問時，請用蘇格拉底式提問引導我！</span></div>
+            </section>
+
+            <section id="practice" class="step-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom: 8px;">
+                    <h3 style="margin:0;"><span class="lang-en">🛠️ 20 Hands-On Labs (Click Any Lab to Code Online!)</span><span class="lang-zh">🛠️ 20 題課堂實作練習（點擊任一題目直接線上寫程式執行！）</span></h3>
+                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="openColabModal(0)"><span class="lang-en">▶ Launch Interactive Sandbox</span><span class="lang-zh">▶ 啟動互動寫程式視窗</span></button>
+                </div>
+                <p style="font-size: 0.92rem; color: var(--color-text-secondary); margin-bottom: 20px;"><span class="lang-en">Click any lab item below to open the interactive coding window (#colab-modal) — edit and run Python directly in your browser or launch Google Colab! Check the box when completed:</span><span class="lang-zh">點擊下方任一實作題目即可開啟互動模擬視窗（#colab-modal），支援直接在瀏覽器內編輯並執行 Python 程式碼，或一鍵複製前往 Google Colab！完成後可勾選方框：</span></p>
+                <div class="lab-list">
+                    <div class="lab-item" data-lab-index="0"><input type="checkbox"> <span class="lang-en">1. Understand HTTP methods: GET, POST, PUT, DELETE</span><span class="lang-zh">1. 認識 RESTful API 四大方法：GET、POST、PUT、DELETE</span></div>
+                    <div class="lab-item" data-lab-index="1"><input type="checkbox"> <span class="lang-en">2. Call a public REST API endpoint using requests.get()</span><span class="lang-zh">2. 使用 requests.get() 呼叫公開 REST API 端點</span></div>
+                    <div class="lab-item" data-lab-index="2"><input type="checkbox"> <span class="lang-en">3. Parse JSON response body directly with response.json()</span><span class="lang-zh">3. 使用 response.json() 將 API 回應直接轉為 Python 字典</span></div>
+                    <div class="lab-item" data-lab-index="3"><input type="checkbox"> <span class="lang-en">4. Access nested JSON fields: data[&#x27;main&#x27;][&#x27;temp&#x27;]</span><span class="lang-zh">4. 存取多層巢狀 JSON 欄位：data[&#x27;main&#x27;][&#x27;temp&#x27;]</span></div>
+                    <div class="lab-item" data-lab-index="4"><input type="checkbox"> <span class="lang-en">5. Load API keys safely via os.environ.get(&#x27;API_KEY&#x27;)</span><span class="lang-zh">5. 使用 os.environ.get() 從環境變數安全讀取 API Key</span></div>
+                    <div class="lab-item" data-lab-index="5"><input type="checkbox"> <span class="lang-en">6. Build an API request URL with query parameters dict</span><span class="lang-zh">6. 使用 params={} 字典自動組合 URL 查詢參數</span></div>
+                    <div class="lab-item" data-lab-index="6"><input type="checkbox"> <span class="lang-en">7. Convert temperature from Kelvin to Celsius (K - 273.15)</span><span class="lang-zh">7. 將絕對溫度 Kelvin 轉換為攝氏溫度 Celsius (K - 273.15)</span></div>
+                    <div class="lab-item" data-lab-index="7"><input type="checkbox"> <span class="lang-en">8. Extract city name, temperature, and humidity from API payload</span><span class="lang-zh">8. 從氣象 API 回應中提取城市、溫度與濕度指標</span></div>
+                    <div class="lab-item" data-lab-index="8"><input type="checkbox"> <span class="lang-en">9. Handle 404 (City Not Found) and 401 (Unauthorized) responses</span><span class="lang-zh">9. 撰寫條件判斷處理 404（找不到城市）與 401（金鑰無效）狀態碼</span></div>
+                    <div class="lab-item" data-lab-index="9"><input type="checkbox"> <span class="lang-en">10. Handle API timeout or network errors with try/except</span><span class="lang-zh">10. 使用 try / except 攔截 API 連線逾時或網路異常</span></div>
+                    <div class="lab-item" data-lab-index="10"><input type="checkbox"> <span class="lang-en">11. Fetch weather data for multiple Taiwan cities in a loop</span><span class="lang-zh">11. 使用迴圈批量取得台灣多個城市的氣象數據</span></div>
+                    <div class="lab-item" data-lab-index="11"><input type="checkbox"> <span class="lang-en">12. Sort cities by temperature using sorted() + lambda</span><span class="lang-zh">12. 使用 sorted() 搭配 lambda 將城市依氣溫由高到低排序</span></div>
+                    <div class="lab-item" data-lab-index="12"><input type="checkbox"> <span class="lang-en">13. Pretty-print complex JSON payloads with json.dumps(indent=2)</span><span class="lang-zh">13. 使用 json.dumps(data, indent=2) 美化輸出巢狀 JSON</span></div>
+                    <div class="lab-item" data-lab-index="13"><input type="checkbox"> <span class="lang-en">14. Simulate a POST request sending JSON data to an AI API</span><span class="lang-zh">14. 模擬發送 POST 請求傳遞 JSON Prompt 給 AI 模型 API</span></div>
+                    <div class="lab-item" data-lab-index="14"><input type="checkbox"> <span class="lang-en">15. Parse semiconductor stock API data (TSMC, NVIDIA)</span><span class="lang-zh">15. 解析半導體股票 API 行情數據（台積電、輝達）</span></div>
+                    <div class="lab-item" data-lab-index="15"><input type="checkbox"> <span class="lang-en">16. Save fetched API data locally as a JSON cache file</span><span class="lang-zh">16. 將 API 回傳的資料存入本地端 JSON 快取檔案</span></div>
+                    <div class="lab-item" data-lab-index="16"><input type="checkbox"> <span class="lang-en">17. Format an ASCII table dashboard from API records</span><span class="lang-zh">17. 將 API 數據排版為整齊的終端機儀表板表格</span></div>
+                    <div class="lab-item" data-lab-index="17"><input type="checkbox"> <span class="lang-en">18. Calculate summary statistics (max, min, avg) from API list</span><span class="lang-zh">18. 從 API 數據列表中計算最高溫、最低溫與平均溫度</span></div>
+                    <div class="lab-item" data-lab-index="18"><input type="checkbox"> <span class="lang-en">19. Implement exponential backoff / retry logic for API rate limits</span><span class="lang-zh">19. 為 API 呼叫加上流量限制（Rate Limit 429）重試機制</span></div>
+                    <div class="lab-item" data-lab-index="19"><input type="checkbox"> <span class="lang-en">20. Build the complete &#x27;Multi-City Weather &amp; AI Briefing Dashboard&#x27;</span><span class="lang-zh">20. 綜合實作：打造「多城市即時氣象與 AI 智慧簡報儀表板」</span></div>
+                </div>
+            </section>
+
+            <section id="quiz" class="quiz-section">
+                <h3><span class="lang-en">📝 10 Knowledge Quizzes</span><span class="lang-zh">📝 10 題隨堂知識測驗</span></h3>
+                <div style="margin-top: 20px;">
+                    <ol style="margin-left: 20px; color: var(--color-text-secondary); line-height: 1.8;">
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What does REST stand for in RESTful API?</span><span class="lang-zh">在 RESTful API 中，REST 代表什麼？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> Representational State Transfer — a standard architectural style for web services using HTTP methods.</span><span class="lang-zh">💡 <b>參考解答：</b>Representational State Transfer（表現層狀態轉換），一種使用標準 HTTP 方法進行網路服務通訊的軟體架構風格。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What does `response.json()` do in the `requests` library?</span><span class="lang-zh">`requests` 套件中的 `response.json()` 有什麼作用？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> Parses the JSON-formatted HTTP response body directly into a Python `dict` or `list`.</span><span class="lang-zh">💡 <b>參考解答：</b>直接將伺服器回傳的 JSON 格式內容解析並轉換為 Python 的字典（`dict`）或列表（`list`）。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What is an API Key?</span><span class="lang-zh">什麼是 API Key（API 金鑰）？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> A unique secret token used by an API server to authenticate your identity and track your usage quota.</span><span class="lang-zh">💡 <b>參考解答：</b>一組由 API 服務商核發的專屬識別密鑰，用來驗證呼叫者身分並計算呼叫額度。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">Why must you NEVER hardcode secret API keys directly inside code pushed to public GitHub?</span><span class="lang-zh">為什麼絕對不能把真實的 API Key 直接寫死（Hardcode）在公開的 GitHub 程式碼中？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> Bots scan public repositories within seconds and can steal exposed keys, leading to unauthorized usage and huge bills.</span><span class="lang-zh">💡 <b>參考解答：</b>網路上的自動化爬蟲會在幾秒內掃描公開的 GitHub 儲存庫，一旦金鑰外洩就會被盜用並產生高額帳單或資安風險。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What does passing `params={&#x27;q&#x27;: &#x27;Taipei&#x27;, &#x27;units&#x27;: &#x27;metric&#x27;}` to `requests.get()` do?</span><span class="lang-zh">在 `requests.get(url, params={&#x27;q&#x27;: &#x27;Taipei&#x27;, &#x27;units&#x27;: &#x27;metric&#x27;})` 中傳入 `params` 會做什麼？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> Automatically URL-encodes and appends the query string `?q=Taipei&amp;units=metric` to the request URL.</span><span class="lang-zh">💡 <b>參考解答：</b>自動進行網址編碼，並在請求網址後方接上查詢字串 `?q=Taipei&amp;units=metric`。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What HTTP status code indicates &#x27;Unauthorized&#x27; (invalid or missing API key)?</span><span class="lang-zh">哪一個 HTTP 狀態碼代表「未授權（Unauthorized，通常是 API Key 無效或未帶）」？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> HTTP `401 Unauthorized`.</span><span class="lang-zh">💡 <b>參考解答：</b>HTTP `401 Unauthorized`。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What HTTP status code indicates &#x27;Too Many Requests&#x27; (rate limit exceeded)?</span><span class="lang-zh">哪一個 HTTP 狀態碼代表「請求次數過多（超過呼叫頻率上限 Rate Limit）」？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> HTTP `429 Too Many Requests`.</span><span class="lang-zh">💡 <b>參考解答：</b>HTTP `429 Too Many Requests`。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">How do you safely read an environment variable `&#x27;API_KEY&#x27;` in Python?</span><span class="lang-zh">在 Python 中如何安全地從作業系統環境變數讀取 `&#x27;API_KEY&#x27;`？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> Use `os.environ.get(&#x27;API_KEY&#x27;)`.</span><span class="lang-zh">💡 <b>參考解答：</b>匯入 `os` 模組後使用 `os.environ.get(&#x27;API_KEY&#x27;)`。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">What is the primary difference between an HTTP `GET` request and a `POST` request?</span><span class="lang-zh">HTTP 的 `GET` 請求與 `POST` 請求最主要的差別是什麼？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> `GET` retrieves data from the server via URL parameters; `POST` sends a data payload in the request body to create or process resources.</span><span class="lang-zh">💡 <b>參考解答：</b>`GET` 用於從伺服器讀取資料（參數帶在網址列）；`POST` 則將資料封裝在請求本體（Body）中傳送給伺服器（常用於新增資料或呼叫 AI 模型）。</span></div>
+                        </li>
+                        <li style="margin-bottom: 12px;"><span class="lang-en">How do you access the string `&#x27;Clear&#x27;` inside `data = {&#x27;weather&#x27;: [{&#x27;main&#x27;: &#x27;Clear&#x27;}]}`?</span><span class="lang-zh">如何從 `data = {&#x27;weather&#x27;: [{&#x27;main&#x27;: &#x27;Clear&#x27;}]}` 中取出 `&#x27;Clear&#x27;`？</span>
+                            <div class="quiz-answer"><span class="lang-en">💡 <b>Answer:</b> `data[&#x27;weather&#x27;][0][&#x27;main&#x27;]` — first access the `&#x27;weather&#x27;` list, then index `[0]`, then key `&#x27;main&#x27;`.</span><span class="lang-zh">💡 <b>參考解答：</b>`data[&#x27;weather&#x27;][0][&#x27;main&#x27;]` —— 先取 `&#x27;weather&#x27;` 列表，再用 `[0]` 取出第一個字典，最後取 `&#x27;main&#x27;`。</span></div>
+                        </li>
+                    </ol>
+                </div>
+                <button id="toggle-answers-btn" class="btn btn-outline" style="margin-top: 20px; width: 100%; transition: background 0.3s, color 0.3s;" onclick="toggleQuizAnswers()"><span class="lang-en">✨ Submit Quiz & Show Answers</span><span class="lang-zh">✨ 提交測驗並顯示解答</span></button>
+            </section>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 40px;">
+                <a href="week13.html" class="btn btn-outline" style="padding: 8px 16px;">← Week 13</a>
+                <a href="week15.html" class="btn btn-primary" style="padding: 8px 16px;">Week 15 →</a>
+            </div>
+
+            <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-secondary); font-size: 0.85rem;">© 2026 Stellark Academy | Stellark AI × Life Studio. All rights reserved.</footer>
+        </main>
+    </div>
+
+    <!-- 💻 Interactive Coding Modal Simulator (#colab-modal) with In-Browser Python Execution -->
+    <div id="colab-modal" class="modal-overlay" onclick="if(event.target===this)closeColabModal()">
+        <div class="colab-window">
+            <div class="colab-header">
+                <div class="colab-dots"><i></i><i></i><i></i></div>
+                <span class="colab-title">Unit14_API_Integration.ipynb</span>
+                <div class="colab-nav-group">
+                    <button class="colab-nav-btn" onclick="stepColabLab(-1)" title="Previous Lab">◀ Prev</button>
+                    <span id="colab-lab-counter" style="color:#94a3b8; font-size:0.78rem; font-family:monospace; padding:0 4px;">1 / 20</span>
+                    <button class="colab-nav-btn" onclick="stepColabLab(1)" title="Next Lab">Next ▶</button>
+                </div>
+                <button class="colab-close" onclick="closeColabModal()" aria-label="Close">&times;</button>
+            </div>
+            <div class="colab-body">
+                <div class="colab-top-bar">
+                    <h3 id="colab-task-title">Loading...</h3>
+                    <div style="display:flex; gap:6px; flex-shrink:0;">
+                        <button class="colab-mini-btn" onclick="resetColabCode()"><span class="lang-en">↺ Reset Code</span><span class="lang-zh">↺ 重置程式</span></button>
+                        <button class="colab-mini-btn" onclick="copyColabCode()"><span class="lang-en">📋 Copy</span><span class="lang-zh">📋 複製</span></button>
+                    </div>
+                </div>
+                <div class="colab-cell">
+                    <button class="colab-run-btn" onclick="runPythonInBrowser()" title="Run Python in Browser (Ctrl+Enter)">▶</button>
+                    <textarea id="colab-code" spellcheck="false" aria-label="Python Code Editor"></textarea>
+                </div>
+                <div id="colab-output-panel" class="colab-output-panel">
+                    <div class="colab-output-header">
+                        <span id="colab-engine-status">⚡ Python Live Output Console</span>
+                        <button class="colab-mini-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="clearColabOutput()">Clear</button>
+                    </div>
+                    <pre id="colab-output-text"></pre>
+                    <canvas id="colab-canvas" width="520" height="240"></canvas>
+                </div>
+            </div>
+            <div class="colab-footer">
+                <button id="colab-run-browser-btn" onclick="runPythonInBrowser()" class="btn btn-run-browser">
+                    <span class="lang-en">▶ Run Code Here in Browser (Ctrl+Enter)</span>
+                    <span class="lang-zh">▶ 線上直接執行 Python 程式 (Ctrl+Enter)</span>
+                </button>
+                <button id="colab-execute-btn" onclick="executeInColab()" class="btn btn-primary">
+                    <span class="lang-en">🚀 Copy & Open in Google Colab</span>
+                    <span class="lang-zh">🚀 複製並開啟 Google Colab</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const colabSnippets = ["methods = {\n    \"GET\": \"Retrieve data from server\",\n    \"POST\": \"Create new resource on server\",\n    \"PUT\": \"Update existing resource\",\n    \"DELETE\": \"Remove resource\"\n}\nfor m, desc in methods.items():\n    print(f\"🌐 {m:<6} -> {desc}\")", "import requests\nresp = requests.get(\"https://api.stellark.studio/v1/weather?city=Taipei\")\nprint(\"API Status:\", resp.status_code)", "import requests\nresp = requests.get(\"https://api.stellark.studio/v1/weather?city=Taipei\")\ndata = resp.json()\nprint(\"Parsed JSON dict:\", data)", "payload = {\n    \"name\": \"Hsinchu\",\n    \"main\": {\"temp\": 25.4, \"humidity\": 68},\n    \"weather\": [{\"description\": \"Clear sky\"}]\n}\nprint(\"City:\", payload[\"name\"])\nprint(\"Temp:\", payload[\"main\"][\"temp\"], \"°C\")\nprint(\"Desc:\", payload[\"weather\"][0][\"description\"])", "import os\napi_key = os.environ.get(\"OPENWEATHER_API_KEY\", \"demo_key_hidden_in_env\")\nmasked = api_key[:4] + \"****\" + api_key[-3:]\nprint(\"🔑 Loaded masked API Key:\", masked)", "from urllib.parse import urlencode\nbase_url = \"https://api.openweathermap.org/data/2.5/weather\"\nparams = {\"q\": \"Taipei\", \"units\": \"metric\", \"lang\": \"zh_tw\"}\nprint(\"Full Query URL:\\n\" + base_url + \"?\" + urlencode(params))", "kelvin = 298.65\ncelsius = round(kelvin - 273.15, 2)\nprint(f\"🌡️ {kelvin} K = {celsius} °C\")", "data = {\"city\": \"Taipei\", \"temp_c\": 26.2, \"humidity\": 70}\nprint(f\"🏙️ {data['city']}: {data['temp_c']}°C (Humidity: {data['humidity']}%)\")", "def check_status(code):\n    if code == 200: return \"✅ 200 OK: Data received\"\n    elif code == 401: return \"🔒 401 Unauthorized: Check your API Key\"\n    elif code == 404: return \"❓ 404 Not Found: City does not exist\"\n    return f\"⚠️ Status {code}\"\n\nfor c in [200, 401, 404]:\n    print(check_status(c))", "import requests\ntry:\n    r = requests.get(\"https://api.stellark.studio/v1/status\", timeout=5)\n    print(\"API reachable! Status:\", r.status_code)\nexcept Exception as e:\n    print(\"🛡️ Fallback activated:\", e)", "cities = [\n    {\"city\": \"Taipei\", \"temp\": 25.0, \"cond\": \"Cloudy ⛅\"},\n    {\"city\": \"Hsinchu\", \"temp\": 24.2, \"cond\": \"Breezy 🍃\"},\n    {\"city\": \"Kaohsiung\", \"temp\": 28.5, \"cond\": \"Sunny ☀️\"}\n]\nfor c in cities:\n    print(f\"📍 {c['city']:<10} | {c['temp']:4.1f}°C | {c['cond']}\")", "cities = [\n    {\"city\": \"Taipei\", \"temp\": 25.0},\n    {\"city\": \"Hsinchu\", \"temp\": 24.2},\n    {\"city\": \"Kaohsiung\", \"temp\": 28.5}\n]\nwarmest = sorted(cities, key=lambda x: x[\"temp\"], reverse=True)\nprint(\"🔥 Ranked by temperature:\", warmest)", "import json\npayload = {\"status\": \"ok\", \"results\": [{\"ticker\": \"2330.TW\", \"name\": \"TSMC\", \"price\": 1080}]}\nprint(json.dumps(payload, indent=2))", "import json\nrequest_body = {\n    \"model\": \"gemini-2.5-pro\",\n    \"prompt\": \"Explain Python dicts in 1 sentence.\",\n    \"temperature\": 0.7\n}\nprint(\"📤 Sending POST JSON payload:\\n\" + json.dumps(request_body, indent=2))\nprint(\"📥 AI Response: 'A Python dictionary is a fast key-value treasure map!'\")", "stocks = [\n    {\"symbol\": \"2330.TW\", \"name\": \"TSMC\", \"price\": 1085, \"change\": \"+2.3%\"},\n    {\"symbol\": \"NVDA\",    \"name\": \"NVIDIA\", \"price\": 142.5, \"change\": \"+3.8%\"}\n]\nfor s in stocks:\n    print(f\"📈 {s['symbol']:<8} ({s['name']:<6}) | Price: {s['price']:>7} | {s['change']}\")", "import json\ncache = {\"timestamp\": \"2026-10-25T16:00:00\", \"city\": \"Hsinchu\", \"temp\": 24.5}\nwith open(\"weather_cache.json\", \"w\", encoding=\"utf-8\") as f:\n    json.dump(cache, f, indent=2)\nprint(\"💾 Cached API response to weather_cache.json\")", "rows = [(\"Taipei\", 25.0, \"68%\"), (\"Hsinchu\", 24.2, \"62%\"), (\"Tainan\", 27.8, \"71%\")]\nprint(f\"{'City':<10} | {'Temp (°C)':<10} | {'Humidity':<8}\")\nprint(\"-\" * 34)\nfor city, t, h in rows:\n    print(f\"{city:<10} | {t:<10.1f} | {h:<8}\")", "temps = [25.0, 24.2, 28.5, 26.1, 23.8]\nprint(f\"🌡️ Max: {max(temps)}°C | Min: {min(temps)}°C | Avg: {sum(temps)/len(temps):.2f}°C\")", "def fetch_with_retry(attempts=2):\n    for i in range(1, attempts + 1):\n        print(f\"📡 API Request attempt #{i}...\")\n    return {\"status\": 200, \"data\": \"Success\"}\n\nprint(\"Result:\", fetch_with_retry())", "data = [\n    {\"city\": \"Taipei\",    \"temp\": 25.4, \"hum\": 70, \" sky\": \"Cloudy ⛅\"},\n    {\"city\": \"Hsinchu\",   \"temp\": 24.1, \"hum\": 62, \" sky\": \"Windy 🍃\"},\n    {\"city\": \"Taichung\",  \"temp\": 26.8, \"hum\": 65, \" sky\": \"Sunny ☀️\"},\n    {\"city\": \"Kaohsiung\", \"temp\": 28.9, \"hum\": 74, \" sky\": \"Hot 🌞\"}\n]\nprint(\"🌍 === Stellark Live Weather API Dashboard ===\")\nfor d in data:\n    print(f\"• {d['city']:<10} : {d['temp']:4.1f}°C | Humidity: {d['hum']}% | {d[' sky']}\")\navg_t = sum(d[\"temp\"] for d in data) / len(data)\nprint(f\"📊 Island-wide Average Temp: {avg_t:.1f}°C\")"];
+        let currentLabIndex = 0;
+        let pyodideInstance = null;
+        let pyodideLoading = false;
+
+        function copyPrompt() {
+            const box = document.getElementById('tessa-prompt-box');
+            const isEn = document.documentElement.lang === 'en';
+            const span = box.querySelector(isEn ? '.lang-en:not(.copy-btn *)' : '.lang-zh:not(.copy-btn *)');
+            const text = span ? span.innerText.trim() : box.innerText.replace('複製咒語', '').replace('Copy Spell', '').trim();
+            navigator.clipboard.writeText(text);
+            alert(isEn ? '✨ Magic spell copied! Paste it to Gemini / ChatGPT to boot up Tessa.' : '✨ 智慧咒語已複製！請貼給 Gemini 或 ChatGPT 啟動數位雙生助教 Tessa。');
+        }
+
+        function getLabTitle(index) {
+            const items = document.querySelectorAll('.lab-item');
+            if (!items[index]) return 'Lab ' + (index + 1);
+            const isEn = document.documentElement.lang === 'en';
+            const span = items[index].querySelector(isEn ? '.lang-en' : '.lang-zh');
+            return span ? span.innerText.trim() : items[index].innerText.trim();
+        }
+
+        function openColabModal(index, customTitle) {
+            currentLabIndex = Math.max(0, Math.min(index, colabSnippets.length - 1));
+            document.getElementById('colab-task-title').innerText = customTitle || getLabTitle(currentLabIndex);
+            document.getElementById('colab-code').value = colabSnippets[currentLabIndex] || '';
+            document.getElementById('colab-lab-counter').innerText = (currentLabIndex + 1) + ' / ' + colabSnippets.length;
+            clearColabOutput();
+            document.getElementById('colab-modal').classList.add('active');
+        }
+
+        function stepColabLab(delta) {
+            const nextIndex = (currentLabIndex + delta + colabSnippets.length) % colabSnippets.length;
+            openColabModal(nextIndex);
+        }
+
+        function resetColabCode() {
+            document.getElementById('colab-code').value = colabSnippets[currentLabIndex] || '';
+            clearColabOutput();
+        }
+
+        function copyColabCode() {
+            const code = document.getElementById('colab-code').value;
+            navigator.clipboard.writeText(code);
+        }
+
+        function clearColabOutput() {
+            const panel = document.getElementById('colab-output-panel');
+            const outText = document.getElementById('colab-output-text');
+            const canvas = document.getElementById('colab-canvas');
+            panel.classList.remove('active');
+            outText.innerText = '';
+            canvas.style.display = 'none';
+        }
+
+        function closeColabModal() {
+            document.getElementById('colab-modal').classList.remove('active');
+        }
+
+        // Visual Canvas Renderer for Matplotlib (W16) & Pygame Snake (W17-W18)
+        function renderVisualPreview(code) {
+            const canvas = document.getElementById('colab-canvas');
+            const ctx = canvas.getContext('2d');
+            if (code.includes('pygame')) {
+                canvas.style.display = 'block';
+                ctx.fillStyle = '#0f0f1a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // Grid lines
+                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                for (let x = 0; x < canvas.width; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+                for (let y = 0; y < canvas.height; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+                // Draw Snake segments
+                const segs = [[180, 120], [160, 120], [140, 120], [120, 120], [100, 120]];
+                segs.forEach(([sx, sy], i) => {
+                    ctx.fillStyle = i === 0 ? '#00ff88' : '#10b981';
+                    ctx.fillRect(sx, sy, 18, 18);
+                });
+                // Draw Food
+                ctx.fillStyle = '#f43f5e';
+                ctx.beginPath();
+                ctx.arc(269, 129, 9, 0, Math.PI * 2);
+                ctx.fill();
+                // HUD
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = 'bold 13px monospace';
+                ctx.fillText('🐍 Stellark Pygame Canvas Preview | Score: 180', 14, 24);
+            } else if (code.includes('matplotlib') || code.includes('plt.') || code.includes('sns.')) {
+                canvas.style.display = 'block';
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#334155';
+                ctx.strokeRect(45, 25, 440, 180);
+                const vals = [65, 82, 91, 96];
+                const labels = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'];
+                const colors = ['#a78bfa', '#00d4ff', '#fbbf24', '#f472b6'];
+                vals.forEach((v, i) => {
+                    const bh = (v / 100) * 145;
+                    const bx = 85 + i * 100;
+                    const by = 205 - bh;
+                    ctx.fillStyle = colors[i];
+                    ctx.fillRect(bx, by, 52, bh);
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.fillText(v + '%', bx + 12, by - 6);
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillText(labels[i], bx + 4, 224);
+                });
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 13px sans-serif';
+                ctx.fillText('📊 Matplotlib / Seaborn Live Chart Preview', 145, 18);
+            }
+        }
+
+        async function ensurePyodide() {
+            if (pyodideInstance) return pyodideInstance;
+            if (pyodideLoading) {
+                while (pyodideLoading) await new Promise(r => setTimeout(r, 100));
+                return pyodideInstance;
+            }
+            pyodideLoading = true;
+            try {
+                if (!window.loadPyodide) {
+                    await new Promise((resolve, reject) => {
+                        const s = document.createElement('script');
+                        s.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
+                        s.onload = resolve;
+                        s.onerror = reject;
+                        document.head.appendChild(s);
+                    });
+                }
+                pyodideInstance = await window.loadPyodide({
+                    indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/'
+                });
+                // Inject educational shims for browser-friendly input(), requests, bs4, pandas, matplotlib, pygame
+                await pyodideInstance.runPythonAsync("\nimport sys, types, builtins, json, re\ntry:\n    import js\n    def _browser_input(prompt_text=\"\"):\n        val = js.prompt(str(prompt_text), \"\")\n        print(f\"{prompt_text}{val if val is not None else ''}\")\n        return val if val is not None else \"\"\n    builtins.input = _browser_input\nexcept ImportError:\n    pass\n\n# Lightweight requests shim\nreq_mod = types.ModuleType(\"requests\")\nclass _Resp:\n    def __init__(self, url):\n        self.url = url\n        self.status_code = 200\n        self.text = \"<html><head><title>Stellark AI x Life Studio</title></head><body><h1>Stellark Academy</h1><a href='/python'>Python</a></body></html>\"\n    def json(self):\n        return {\"city\": \"Taipei\", \"temp_c\": 25.4, \"humidity\": 68, \"status\": \"ok\"}\n    def __repr__(self):\n        return \"<Response [200]>\"\nreq_mod.get = lambda url, **kwargs: _Resp(url)\nreq_mod.exceptions = types.SimpleNamespace(ConnectionError=ConnectionError, RequestException=Exception)\nsys.modules[\"requests\"] = req_mod\n\n# Lightweight bs4 shim\nbs4_mod = types.ModuleType(\"bs4\")\nclass _Tag:\n    def __init__(self, name, text=\"\", attrs=None, raw=\"\"):\n        self.name = name\n        self.text = text\n        self.attrs = attrs or {}\n        self._raw = raw\n    def get(self, k, default=None):\n        return self.attrs.get(k, default)\n    def __getitem__(self, k):\n        return self.attrs[k]\n    def find(self, tag, class_=None):\n        items = self.find_all(tag, class_=class_)\n        return items[0] if items else _Tag(tag, \"\")\n    def find_all(self, tag, class_=None):\n        pat = rf\"<{tag}([^>]*)>(.*?)</{tag}>\"\n        res = []\n        for m in re.finditer(pat, self._raw, re.S | re.I):\n            attr_s, inner = m.group(1), m.group(2)\n            if class_ and \"class=\" in attr_s and class_ not in attr_s:\n                continue\n            href_m = re.search(r'href=[\"\\']([^\"\\']+)[\"\\']', attr_s)\n            attrs = {\"href\": href_m.group(1)} if href_m else {}\n            clean_t = re.sub(r\"<[^>]+>\", \"\", inner)\n            res.append(_Tag(tag, clean_t, attrs, inner))\n        return res\n    def select(self, selector):\n        parts = selector.split(\".\")\n        tag = parts[0] or \"div\"\n        cls = parts[1] if len(parts) > 1 else None\n        return self.find_all(tag, class_=cls)\n\nclass BeautifulSoup(_Tag):\n    def __init__(self, html_str, parser=\"html.parser\"):\n        super().__init__(\"document\", re.sub(r\"<[^>]+>\", \"\", html_str), {}, html_str)\n        self.title = self.find(\"title\")\nbs4_mod.BeautifulSoup = BeautifulSoup\nsys.modules[\"bs4\"] = bs4_mod\n\n# Lightweight pandas shim\npd_mod = types.ModuleType(\"pandas\")\nclass Series:\n    def __init__(self, data, name=None):\n        self.data = list(data)\n        self.name = name\n    def mean(self):\n        nums = [x for x in self.data if isinstance(x, (int, float))]\n        return round(sum(nums)/len(nums), 2) if nums else 0\n    def sum(self):\n        return sum(x for x in self.data if isinstance(x, (int, float)))\n    def agg(self, funcs):\n        nums = [x for x in self.data if isinstance(x, (int, float))]\n        return {f: (len(nums) if f==\"count\" else (round(sum(nums)/len(nums),2) if f==\"mean\" else max(nums))) for f in funcs}\n    def value_counts(self):\n        counts = {}\n        for x in self.data: counts[x] = counts.get(x, 0) + 1\n        return \"\\n\".join(f\"{k}    {v}\" for k, v in sorted(counts.items(), key=lambda i: -i[1]))\n    def __gt__(self, other): return [x is not None and x > other for x in self.data]\n    def __ge__(self, other): return [x is not None and x >= other for x in self.data]\n    def __repr__(self):\n        lines = [f\"{i}    {v}\" for i, v in enumerate(self.data)]\n        return \"\\n\".join(lines) + (f\"\\nName: {self.name}\" if self.name else \"\")\n\nclass _GroupBy:\n    def __init__(self, rows, by_col):\n        self.rows, self.by_col = rows, by_col\n    def __getitem__(self, val_col):\n        groups = {}\n        for r in self.rows:\n            groups.setdefault(r[self.by_col], []).append(r[val_col])\n        class _GSeries:\n            def mean(s):\n                return \"\\n\".join(f\"{k:<8} {sum(v)/len(v):.2f}\" for k, v in groups.items())\n            def agg(s, funcs):\n                lines = [f\"{'Group':<8} \" + \" \".join(f\"{f:>6}\" for f in funcs)]\n                for k, v in groups.items():\n                    lines.append(f\"{k:<8} {len(v):>6} {sum(v)/len(v):>6.1f} {max(v):>6}\")\n                return \"\\n\".join(lines)\n        return _GSeries()\n\nclass DataFrame:\n    def __init__(self, data):\n        if isinstance(data, dict):\n            cols = list(data.keys())\n            n = len(next(iter(data.values()))) if cols else 0\n            self.rows = [{c: data[c][i] for c in cols} for i in range(n)]\n            self.columns = cols\n        else:\n            self.rows = list(data)\n            self.columns = list(self.rows[0].keys()) if self.rows else []\n    @property\n    def shape(self): return (len(self.rows), len(self.columns))\n    def head(self, n=5): return DataFrame(self.rows[:n])\n    def tail(self, n=5): return DataFrame(self.rows[-n:])\n    def __getitem__(self, key):\n        if isinstance(key, str): return Series([r.get(key) for r in self.rows], name=key)\n        if isinstance(key, list) and all(isinstance(x, bool) for x in key):\n            return DataFrame([r for r, keep in zip(self.rows, key) if keep])\n        if isinstance(key, list):\n            return DataFrame([{k: r.get(k) for k in key} for r in self.rows])\n    def __setitem__(self, key, vals):\n        if key not in self.columns: self.columns.append(key)\n        for r, v in zip(self.rows, vals): r[key] = v\n    def describe(self):\n        num_cols = [c for c in self.columns if any(isinstance(r[c], (int, float)) for r in self.rows)]\n        lines = []\n        for c in num_cols:\n            vals = [r[c] for r in self.rows if isinstance(r[c], (int, float))]\n            lines.append(f\"[{c}] count={len(vals)}, mean={sum(vals)/len(vals):.2f}, min={min(vals)}, max={max(vals)}\")\n        return \"\\n\".join(lines)\n    def isnull(self):\n        cols, rows = self.columns, self.rows\n        class _NullSummary:\n            def sum(s):\n                return \"\\n\".join(f\"{c:<8} {sum(1 for r in rows if r.get(c) is None)}\" for c in cols)\n        return _NullSummary()\n    def fillna(self, val):\n        return DataFrame([{k: (val if v is None else v) for k, v in r.items()} for r in self.rows])\n    def dropna(self):\n        return DataFrame([r for r in self.rows if all(v is not None for v in r.values())])\n    def sort_values(self, col, ascending=True):\n        return DataFrame(sorted(self.rows, key=lambda r: r.get(col, 0), reverse=not ascending))\n    def nlargest(self, n, col):\n        return self.sort_values(col, ascending=False).head(n)\n    def groupby(self, col): return _GroupBy(self.rows, col)\n    def to_csv(self, index=False):\n        lines = [\",\".join(self.columns)]\n        for r in self.rows: lines.append(\",\".join(str(r.get(c, \"\")) for c in self.columns))\n        return \"\\n\".join(lines)\n    def __repr__(self):\n        if not self.rows: return \"Empty DataFrame\"\n        header = \"   \" + \"  \".join(f\"{c:<10}\" for c in self.columns)\n        lines = [header]\n        for i, r in enumerate(self.rows):\n            lines.append(f\"{i:<2} \" + \"  \".join(f\"{str(r.get(c, '')):<10}\" for c in self.columns))\n        return \"\\n\".join(lines)\npd_mod.Series = Series\npd_mod.DataFrame = DataFrame\nsys.modules[\"pandas\"] = pd_mod\n\n# Lightweight matplotlib & seaborn shim\nmpl_mod = types.ModuleType(\"matplotlib\")\nplt_mod = types.ModuleType(\"matplotlib.pyplot\")\nplt_mod.plot = lambda *a, **k: print(f\"📈 plt.plot({a}, {k})\")\nplt_mod.bar = lambda *a, **k: print(f\"📊 plt.bar({a}, {k})\")\nplt_mod.barh = lambda *a, **k: print(f\"📊 plt.barh({a}, {k})\")\nplt_mod.pie = lambda *a, **k: print(f\"🥧 plt.pie({a}, {k})\")\nplt_mod.scatter = lambda *a, **k: print(f\"✨ plt.scatter({a}, {k})\")\nplt_mod.hist = lambda *a, **k: print(f\"📊 plt.hist({a}, {k})\")\nplt_mod.title = lambda t: print(f\"🏷️ Chart Title: '{t}'\")\nplt_mod.xlabel = lambda l: print(f\"➡️ X-Axis: '{l}'\")\nplt_mod.ylabel = lambda l: print(f\"⬆️ Y-Axis: '{l}'\")\nplt_mod.legend = lambda: print(\"🔖 Legend enabled\")\nplt_mod.grid = lambda g=True: print(f\"🕸️ Grid: {g}\")\nplt_mod.subplot = lambda r, c, i: print(f\"🖼️ Subplot({r}x{c}, panel #{i})\")\nplt_mod.savefig = lambda fn, dpi=100: print(f\"💾 Saved figure '{fn}' at {dpi} DPI\")\nplt_mod.show = lambda: print(\"✅ Chart rendered in visual canvas below!\")\nmpl_mod.pyplot = plt_mod\nsys.modules[\"matplotlib\"] = mpl_mod\nsys.modules[\"matplotlib.pyplot\"] = plt_mod\n\nsns_mod = types.ModuleType(\"seaborn\")\nsns_mod.set_theme = lambda **k: print(f\"🎨 Seaborn theme set: {k}\")\nsns_mod.heatmap = lambda m, **k: print(f\"🔥 Seaborn Heatmap rendered ({len(m)}x{len(m[0])} matrix)\")\nsns_mod.boxplot = lambda **k: print(\"📦 Seaborn Boxplot rendered\")\nsys.modules[\"seaborn\"] = sns_mod\n\n# Lightweight pygame shim\npg_mod = types.ModuleType(\"pygame\")\npg_mod.QUIT = 256\npg_mod.init = lambda: (6, 0)\npg_mod.quit = lambda: None\nclass _Surface:\n    def __init__(self, size):\n        self.size = size\n    def fill(self, color):\n        return None\n    def blit(self, source, dest):\n        return None\n    def __repr__(self):\n        return f\"<Surface({self.size[0]}x{self.size[1]}x32 SW)>\"\npg_mod.display = types.SimpleNamespace(\n    set_mode=lambda size: _Surface(size),\n    set_caption=lambda title: None,\n    flip=lambda: None,\n    update=lambda: None\n)\npg_mod.event = types.SimpleNamespace(get=lambda: [types.SimpleNamespace(type=256)])\npg_mod.draw = types.SimpleNamespace(rect=lambda s, c, r: None, line=lambda *a: None, circle=lambda *a: None)\npg_mod.time = types.SimpleNamespace(Clock=lambda: types.SimpleNamespace(tick=lambda fps: fps))\npg_mod.font = types.SimpleNamespace(SysFont=lambda name, sz: types.SimpleNamespace(render=lambda txt, aa, col: f\"<TextSurface '{txt}'>\"))\nsys.modules[\"pygame\"] = pg_mod\n");
+            } finally {
+                pyodideLoading = false;
+            }
+            return pyodideInstance;
+        }
+
+        async function runPythonInBrowser() {
+            const code = document.getElementById('colab-code').value;
+            const panel = document.getElementById('colab-output-panel');
+            const outText = document.getElementById('colab-output-text');
+            const status = document.getElementById('colab-engine-status');
+            const isEn = document.documentElement.lang === 'en';
+
+            panel.classList.add('active');
+            status.innerText = isEn ? '⏳ Initializing Python 3.11 WebAssembly Engine...' : '⏳ 正在啟動瀏覽器內建 Python 3.11 執行引擎...';
+            outText.innerText = isEn ? 'Running your Python code...' : '正在執行您的 Python 程式碼...';
+
+            try {
+                const pyodide = await ensurePyodide();
+                status.innerText = isEn ? '✅ Python 3.11 (Pyodide WebAssembly) — Execution Result' : '✅ 線上 Python 3.11 即時執行結果';
+                pyodide.runPython(`
+import sys, io
+_stdout_buf = io.StringIO()
+_stderr_buf = io.StringIO()
+sys.stdout = _stdout_buf
+sys.stderr = _stderr_buf
+`);
+                let result = await pyodide.runPythonAsync(code);
+                let stdout = pyodide.runPython("_stdout_buf.getvalue()");
+                let stderr = pyodide.runPython("_stderr_buf.getvalue()");
+                let finalOut = (stdout || '') + (stderr ? '\\n' + stderr : '');
+                if (!finalOut.trim() && result !== undefined && result !== null) {
+                    finalOut = String(result);
+                }
+                if (!finalOut.trim()) {
+                    finalOut = isEn
+                        ? '✅ Code executed successfully (no console print output). Tip: use print() to inspect variables!'
+                        : '✅ 程式已成功執行完畢（無螢幕輸出）。提示：可加上 print() 觀察變數內容！';
+                }
+                outText.style.color = '#e2e8f0';
+                outText.innerText = finalOut.trimEnd();
+                renderVisualPreview(code);
+            } catch (err) {
+                status.innerText = isEn ? '⚠️ Python Runtime Error / Traceback' : '⚠️ Python 執行期錯誤提示 (Traceback)';
+                outText.style.color = '#fca5a5';
+                outText.innerText = String(err);
+            }
+        }
+
+        function toggleQuizAnswers() {
+            const answers = document.querySelectorAll('.quiz-answer');
+            const btn = document.getElementById('toggle-answers-btn');
+            if (answers.length === 0) return;
+            const isShowing = answers[0].classList.contains('show');
+            if (isShowing) {
+                answers.forEach(a => a.classList.remove('show'));
+                btn.innerHTML = '<span class="lang-en">✨ Submit Quiz & Show Answers</span><span class="lang-zh">✨ 提交測驗並顯示解答</span>';
+                btn.classList.add('btn-outline');
+                btn.classList.remove('btn-primary');
+            } else {
+                answers.forEach(a => a.classList.add('show'));
+                btn.innerHTML = '<span class="lang-en">🙈 Hide Answers</span><span class="lang-zh">🙈 隱藏參考解答</span>';
+                btn.classList.remove('btn-outline');
+                btn.classList.add('btn-primary');
+            }
+        }
+
+        function executeInColab() {
+            const code = document.getElementById('colab-code').value;
+            const isEn = document.documentElement.lang === 'en';
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('colab-execute-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = isEn
+                    ? '✅ Code copied! Opening Colab... (Press Ctrl+V to paste)'
+                    : '✅ 程式碼已複製！正為您開啟 Colab... (進入後請按 Ctrl+V 貼上)';
+                btn.style.background = '#28c840';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                    window.open('https://colab.research.google.com/#create=true', '_blank');
+                }, 1000);
+            }).catch(() => {
+                window.open('https://colab.research.google.com/#create=true', '_blank');
+            });
+        }
+
+        // Keyboard shortcut Ctrl+Enter or Shift+Enter inside editor runs Python in browser
+        document.getElementById('colab-code').addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.shiftKey) && e.key === 'Enter') {
+                e.preventDefault();
+                runPythonInBrowser();
+            }
+        });
+
+        document.querySelectorAll('.lab-item').forEach((item, index) => {
+            const checkbox = item.querySelector('input');
+            if (checkbox) {
+                checkbox.addEventListener('click', (e) => e.stopPropagation());
+            }
+            item.addEventListener('click', () => {
+                openColabModal(index);
+            });
+        });
+
+        // Set nav button text on load
+        const curLang = localStorage.getItem('lang') || 'zh';
+        const navBtn = document.getElementById('nav-toggle-btn');
+        if (navBtn) navBtn.innerText = curLang === 'en' ? '中文' : 'EN';
+    </script>
+</body>
+</html>
